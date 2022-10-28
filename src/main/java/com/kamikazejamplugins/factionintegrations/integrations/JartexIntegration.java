@@ -11,6 +11,7 @@ import com.massivecraft.factions.event.*;
 import com.massivecraft.factions.iface.RelationParticipator;
 import com.massivecraft.factions.jartex.FactionsAPI;
 import com.massivecraft.factions.jartex.faction.permission.PRole;
+import com.massivecraft.factions.jartex.faction.permission.PTNormal;
 import com.massivecraft.factions.struct.Relation;
 import com.massivecraft.factions.zcore.persist.MemoryBoard;
 import lombok.SneakyThrows;
@@ -837,5 +838,11 @@ public class JartexIntegration implements KFaction {
         KPowerLossEvent event = new KPowerLossEvent(e.getfPlayer().getPlayer());
         Bukkit.getPluginManager().callEvent(event);
         if(event.isCancelled())e.setCancelled(true);
+    }
+
+    public boolean hasPermission(String factionId, UUID playerUUID, String permission) {
+        Faction faction = Factions.getInstance().getFactionById(factionId);
+        FPlayer fPlayer = FPlayers.getInstance().getByPlayer(Bukkit.getPlayer(playerUUID));
+        return FactionsAPI.getInstance().getPermissionManager().hasPermission(faction, fPlayer, PTNormal.valueOf(permission));
     }
 }
