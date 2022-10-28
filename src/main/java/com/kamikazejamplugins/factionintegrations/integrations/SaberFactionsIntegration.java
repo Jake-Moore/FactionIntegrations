@@ -947,4 +947,11 @@ public class SaberFactionsIntegration implements KFaction {
         }
         return TranslatedRelation.ENEMY;
     }
+
+    @EventHandler
+    public void onPowerLoss(PowerLossEvent e) {
+        KPowerLossEvent event = new KPowerLossEvent(e.getfPlayer().getPlayer());
+        Bukkit.getPluginManager().callEvent(event);
+        if(event.isCancelled())e.setCancelled(true);
+    }
 }
