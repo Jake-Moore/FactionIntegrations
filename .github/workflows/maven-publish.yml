@@ -1,0 +1,42 @@
+# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
+# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
+
+name: Maven Package
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+        settings-path: ${{ github.workspace }} # location for the settings.xml file
+        token: ${{ secrets.MY_TOKEN }}
+
+    - name: Maven Settings
+      uses: s4u/maven-settings-action@v2.6.0
+      with:
+        servers: '[{"id": "github", "username": "jake-moore", "password": "${{ secrets.MY_TOKEN }}" }, {"id": "jartexsys-releases", "username": "KamikazeJAM_YT", "password": "${{ secrets.JARTEX_PASS }}" }, {"id": "jartexsys", "username": "KamikazeJAM_YT", "password": "${{ secrets.JARTEX_PASS }}" }, {"id": "jartexsys-snapshots", "username": "KamikazeJAM_YT", "password": "${{ secrets.JARTEX_PASS }}" }]'
+
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml
+
+    - name: Publish to GitHub Packages Apache Maven
+      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
