@@ -2,6 +2,8 @@ package com.kamikazejamplugins.factionintegrations.integrations.interfaces;
 
 import com.kamikazejamplugins.factionintegrations.object.TranslatedRelation;
 import com.kamikazejamplugins.factionintegrations.object.TranslatedRole;
+import com.massivecraft.factions.Faction;
+import com.massivecraft.factions.Factions;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -165,4 +167,28 @@ public interface KFaction extends Listener {
     TranslatedRelation getFactionRelationToFaction(String id1, String id2);
 
     TranslatedRelation getRelationToPlayer(Player player, Player player2);
+
+    default void setOpen(String factionId, boolean open) {
+        Factions.getInstance().getFactionById(factionId).setOpen(open);
+    }
+
+    default void setPermanent(String factionId, boolean permanent) {
+        Factions.getInstance().getFactionById(factionId).setPermanent(permanent);
+    }
+
+    default String getDescription(String factionId) {
+        return Factions.getInstance().getFactionById(factionId).getDescription();
+    }
+
+    default void setDescription(String factionId, String description) {
+        Factions.getInstance().getFactionById(factionId).setDescription(description);
+    }
+
+    default String getWarzone() {
+        return Factions.getInstance().getWarZone().getId();
+    }
+
+    default String getSafezone() {
+        return Factions.getInstance().getSafeZone().getId();
+    }
 }
