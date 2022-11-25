@@ -116,6 +116,7 @@ public class FactionIntegrations {
             Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into FactionsUUID (Jartex)!"));
             return true;
         }
+        //TODO add McoreIntegration here too
         return false;
     }
 
