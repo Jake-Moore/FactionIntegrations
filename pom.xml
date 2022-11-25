@@ -106,7 +106,7 @@
         <dependency>
             <groupId>com.kamikazejamplugins</groupId>
             <artifactId>kamicommon</artifactId>
-            <version>1.0.20</version>
+            <version>1.0.25</version>
             <scope>compile</scope>
         </dependency>
 
