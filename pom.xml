@@ -51,10 +51,6 @@
             <url>https://maven.pkg.github.com/jake-moore/kamicommon</url>
         </repository>
         <repository>
-            <id>jartexsys</id>
-            <url>https://nexus.jartexsys.net/repository/jartexsys-snapshots/</url>
-        </repository>
-        <repository>
             <id>spigotmc-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
@@ -88,7 +84,9 @@
         <dependency>
             <groupId>com.massivecraft</groupId>
             <artifactId>Factions</artifactId>
-            <version>3.2.2-20221026.235529-9</version>
+            <version>3.2.2-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/libs/JartexFactions-3.2.2.jar</systemPath>
         </dependency>
 
         <dependency>
