@@ -56,12 +56,14 @@ public class JartexIntegration implements KFaction {
 
     @EventHandler
     public void onLandUnclaimEvent(LandUnclaimEvent e){
-        Bukkit.getPluginManager().callEvent(new KLandUnclaimEvent(e.getFaction().getId(), e.getLocation().getWorldName(), new Integer[] {(int) e.getLocation().getX(), (int) e.getLocation().getZ()}, e.getfPlayer().getPlayer()));
+        KLandUnclaimEvent event = new KLandUnclaimEvent(e.getFaction().getId(), e.getLocation().getWorldName(), new Integer[] {(int) e.getLocation().getX(), (int) e.getLocation().getZ()}, e.getfPlayer().getPlayer());
+        if (!event.callEvent()) { e.setCancelled(true); }
     }
 
     @EventHandler
     public void onLandUnclaimallEvent(LandUnclaimAllEvent e){
-        Bukkit.getPluginManager().callEvent(new KLandUnclaimallEvent(e.getFaction().getId(), "None", new Integer[] {0, 0}, e.getfPlayer().getPlayer()));
+        KLandUnclaimallEvent event = new KLandUnclaimallEvent(e.getFaction().getId(), "None", new Integer[] {0, 0}, e.getfPlayer().getPlayer());
+        if (!event.callEvent()) { e.setCancelled(true); }
     }
 
     @EventHandler

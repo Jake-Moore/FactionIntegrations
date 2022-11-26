@@ -12,6 +12,7 @@ import com.massivecraft.factions.event.*;
 import com.massivecraft.factions.iface.RelationParticipator;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -140,12 +141,14 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
 
     @EventHandler
     public void onLandUnclaimEvent(LandUnclaimEvent e){
-        Bukkit.getPluginManager().callEvent(new KLandUnclaimEvent(e.getFaction().getId(), e.getLocation().getWorldName(), new Integer[] {(int) e.getLocation().getX(), (int) e.getLocation().getZ()}, e.getfPlayer().getPlayer()));
+        KLandUnclaimEvent event = new KLandUnclaimEvent(e.getFaction().getId(), e.getLocation().getWorldName(), new Integer[] {(int) e.getLocation().getX(), (int) e.getLocation().getZ()}, e.getfPlayer().getPlayer());
+        if (!event.callEvent()) { e.setCancelled(true); }
     }
 
     @EventHandler
     public void onLandUnclaimallEvent(LandUnclaimAllEvent e){
-        Bukkit.getPluginManager().callEvent(new KLandUnclaimallEvent(e.getFaction().getId(), "None", new Integer[] {0, 0}, e.getfPlayer().getPlayer()));
+        KLandUnclaimallEvent event = new KLandUnclaimallEvent(e.getFaction().getId(), "None", new Integer[] {0, 0}, e.getfPlayer().getPlayer());
+        if (!event.callEvent()) { e.setCancelled(true); }
     }
 
     @EventHandler

@@ -18,4 +18,16 @@ public class KLandUnclaimallEvent extends KLandEvent{
     }
 
     private static final HandlerList handlerList = new HandlerList();
+
+    private boolean cancelled = false;
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean b) {
+        cancelled = b;
+    }
 }

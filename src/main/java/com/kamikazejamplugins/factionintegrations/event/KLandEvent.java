@@ -1,8 +1,9 @@
 package com.kamikazejamplugins.factionintegrations.event;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 
-public abstract class KLandEvent extends KFactionEvent{
+public abstract class KLandEvent extends KFactionEvent implements Cancellable {
     private final Integer[] location;
 
     private final String world;
