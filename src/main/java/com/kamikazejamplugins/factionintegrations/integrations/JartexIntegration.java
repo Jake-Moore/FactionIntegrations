@@ -671,16 +671,14 @@ public class JartexIntegration implements KFaction {
     }
 
     @Override
-    public Player getLeader(String id) {
+    public UUID getLeader(String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
         if(faction == null)return null;
 
         String uuid = faction.getFPlayerAdmin().getAccountId();
 
-        UUID id1 = UUID.fromString(uuid);
-
-        return Bukkit.getPlayer(id1);
+        return UUID.fromString(uuid);
     }
 
     @Override

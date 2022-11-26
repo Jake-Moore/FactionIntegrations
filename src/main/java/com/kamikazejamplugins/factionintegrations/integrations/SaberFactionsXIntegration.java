@@ -834,7 +834,7 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
     }
 
     @Override
-    public Player getLeader(String id) {
+    public UUID getLeader(String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
         if(faction == null)
@@ -847,9 +847,7 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
 
         String uuid = fPlayerAdmin.getId();
 
-        UUID id1 = UUID.fromString(uuid);
-
-        return Bukkit.getPlayer(id1);
+        return UUID.fromString(uuid);
     }
 
     @Override

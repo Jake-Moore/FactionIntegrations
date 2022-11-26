@@ -12,6 +12,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -140,7 +142,7 @@ public interface KFaction extends Listener {
 
     List<OfflinePlayer> getOfflineMembers(String id);
 
-    Player getLeader(String id);
+    UUID getLeader(String id);
 
     OfflinePlayer getOfflineLeader(String id);
 
