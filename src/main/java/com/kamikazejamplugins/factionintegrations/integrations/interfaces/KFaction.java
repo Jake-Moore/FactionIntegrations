@@ -142,6 +142,8 @@ public interface KFaction extends Listener {
 
     List<OfflinePlayer> getOfflineMembers(String id);
 
+    List<UUID> getAllMembers(String id);
+
     UUID getLeader(String id);
 
     OfflinePlayer getOfflineLeader(String id);

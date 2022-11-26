@@ -7,6 +7,7 @@ import com.massivecraft.factions.event.PowerLossEvent;
 import com.massivecraft.factions.objects.Strike;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.Inventory;
@@ -14,8 +15,10 @@ import org.bukkit.inventory.Inventory;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @SuppressWarnings({"unused"})
 public class JerryIntegration extends UUIDIntegration implements ShieldIntegration {
@@ -198,5 +201,17 @@ public class JerryIntegration extends UUIDIntegration implements ShieldIntegrati
         KPowerLossEvent event = new KPowerLossEvent(e.getfPlayer().getPlayer());
         Bukkit.getPluginManager().callEvent(event);
         if(event.isCancelled())e.setCancelled(true);
+    }
+
+    @Override
+    public List<UUID> getAllMembers(String id) {
+        List<UUID> all = new ArrayList<>();
+        for (Player p : getOnlineMembers(id)) {
+            all.add(p.getUniqueId());
+        }
+        for (OfflinePlayer p : getOfflineMembers(id)) {
+            all.add(p.getUniqueId());
+        }
+        return all;
     }
 }

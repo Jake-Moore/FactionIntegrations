@@ -925,4 +925,16 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public boolean isShieldActive(String id) {
         return this.isShieldActiveNow(id);
     }
+
+    @Override
+    public List<UUID> getAllMembers(String id) {
+        List<UUID> all = new ArrayList<>();
+        for (Player p : getOnlineMembers(id)) {
+            all.add(p.getUniqueId());
+        }
+        for (OfflinePlayer p : getOfflineMembers(id)) {
+            all.add(p.getUniqueId());
+        }
+        return all;
+    }
 }

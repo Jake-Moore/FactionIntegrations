@@ -781,4 +781,16 @@ public class UUIDIntegration implements KFaction {
         Bukkit.getPluginManager().callEvent(event);
         if(event.isCancelled())e.setCancelled(true);
     }
+
+    @Override
+    public List<UUID> getAllMembers(String id) {
+        List<UUID> all = new ArrayList<>();
+        for (Player p : getOnlineMembers(id)) {
+            all.add(p.getUniqueId());
+        }
+        for (OfflinePlayer p : getOfflineMembers(id)) {
+            all.add(p.getUniqueId());
+        }
+        return all;
+    }
 }

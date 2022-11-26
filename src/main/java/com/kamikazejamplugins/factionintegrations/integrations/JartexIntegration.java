@@ -843,4 +843,16 @@ public class JartexIntegration implements KFaction {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(Bukkit.getPlayer(playerUUID));
         return FactionsAPI.getInstance().getPermissionManager().hasPermission(faction, fPlayer, PTNormal.valueOf(permission));
     }
+
+    @Override
+    public List<UUID> getAllMembers(String id) {
+        List<UUID> all = new ArrayList<>();
+        for (Player p : getOnlineMembers(id)) {
+            all.add(p.getUniqueId());
+        }
+        for (OfflinePlayer p : getOfflineMembers(id)) {
+            all.add(p.getUniqueId());
+        }
+        return all;
+    }
 }
