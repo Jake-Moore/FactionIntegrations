@@ -14,6 +14,7 @@ import com.massivecraft.factions.jartex.faction.permission.PRole;
 import com.massivecraft.factions.jartex.faction.permission.PTNormal;
 import com.massivecraft.factions.struct.Relation;
 import com.massivecraft.factions.zcore.persist.MemoryBoard;
+import com.massivecraft.factions.zcore.persist.MemoryFaction;
 import lombok.SneakyThrows;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -856,5 +857,93 @@ public class JartexIntegration implements KFaction {
             all.add(p.getUniqueId());
         }
         return all;
+    }
+
+    public void addMoney(String factionId, double amount) {
+        Faction faction = Factions.getInstance().getFactionById(factionId);
+        if (faction == null) return;
+        MemoryFaction memoryFaction = (MemoryFaction) faction;
+        memoryFaction.addMoney(amount);
+    }
+
+    public void subtractMoney(String factionId, double amount) {
+        Faction faction = Factions.getInstance().getFactionById(factionId);
+        if (faction == null) return;
+        MemoryFaction memoryFaction = (MemoryFaction) faction;
+        memoryFaction.removeMoney(amount);
+    }
+
+    public void setMoney(String factionId, double amount) {
+        Faction faction = Factions.getInstance().getFactionById(factionId);
+        if (faction == null) return;
+        MemoryFaction memoryFaction = (MemoryFaction) faction;
+        memoryFaction.removeMoney(memoryFaction.getMoney());
+        memoryFaction.addMoney(amount);
+    }
+
+    public double getMoney(String factionId) {
+        Faction faction = Factions.getInstance().getFactionById(factionId);
+        if (faction == null) return 0D;
+        MemoryFaction memoryFaction = (MemoryFaction) faction;
+        return memoryFaction.getMoney();
+    }
+
+
+    public void addMobcoins(String factionId, int amount) {
+        Faction faction = Factions.getInstance().getFactionById(factionId);
+        if (faction == null) return;
+        MemoryFaction memoryFaction = (MemoryFaction) faction;
+        memoryFaction.addMobcoins(amount);
+    }
+
+    public void subtractMobcoins(String factionId, int amount) {
+        Faction faction = Factions.getInstance().getFactionById(factionId);
+        if (faction == null) return;
+        MemoryFaction memoryFaction = (MemoryFaction) faction;
+        memoryFaction.removeMobcoins(amount);
+    }
+
+    public void setMobcoins(String factionId, double amount) {
+        Faction faction = Factions.getInstance().getFactionById(factionId);
+        if (faction == null) return;
+        MemoryFaction memoryFaction = (MemoryFaction) faction;
+        memoryFaction.removeMobcoins(memoryFaction.getMobcoins());
+        memoryFaction.addMoney(amount);
+    }
+
+    public double getMobcoins(String factionId) {
+        Faction faction = Factions.getInstance().getFactionById(factionId);
+        if (faction == null) return 0D;
+        MemoryFaction memoryFaction = (MemoryFaction) faction;
+        return memoryFaction.getMobcoins();
+    }
+
+    public void addExp(String factionId, int amount) {
+        Faction faction = Factions.getInstance().getFactionById(factionId);
+        if (faction == null) return;
+        MemoryFaction memoryFaction = (MemoryFaction) faction;
+        memoryFaction.addExp(amount);
+    }
+
+    public void subtractExp(String factionId, int amount) {
+        Faction faction = Factions.getInstance().getFactionById(factionId);
+        if (faction == null) return;
+        MemoryFaction memoryFaction = (MemoryFaction) faction;
+        memoryFaction.removeExp(amount);
+    }
+
+    public void setExp(String factionId, int amount) {
+        Faction faction = Factions.getInstance().getFactionById(factionId);
+        if (faction == null) return;
+        MemoryFaction memoryFaction = (MemoryFaction) faction;
+        memoryFaction.removeExp(memoryFaction.getExp());
+        memoryFaction.addExp(amount);
+    }
+
+    public int getExp(String factionId) {
+        Faction faction = Factions.getInstance().getFactionById(factionId);
+        if (faction == null) return 0;
+        MemoryFaction memoryFaction = (MemoryFaction) faction;
+        return memoryFaction.getExp();
     }
 }
