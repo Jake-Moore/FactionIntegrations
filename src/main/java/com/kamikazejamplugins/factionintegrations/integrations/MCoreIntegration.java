@@ -1,6 +1,3 @@
-//TODO add MassiveCore (Joseph) support
-
-/*
 package com.kamikazejamplugins.factionintegrations.integrations;
 
 import com.kamikazejamplugins.factionintegrations.FactionIntegrations;
@@ -23,9 +20,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
-//TODO setTnt
-//TODO getTnt
-
+@SuppressWarnings("deprecation")
 public class MCoreIntegration implements MKFaction, ShieldIntegration {
 
     @EventHandler
@@ -603,9 +598,6 @@ public class MCoreIntegration implements MKFaction, ShieldIntegration {
     public String getRolePrefix(TranslatedRole translatedRole) {
         Rel rel;
         switch (translatedRole.getValue()){
-            case 1:
-                rel = Rel.RECRUIT;
-                break;
             case 2:
                 rel = Rel.MEMBER;
                 break;
@@ -645,16 +637,14 @@ public class MCoreIntegration implements MKFaction, ShieldIntegration {
     }
 
     @Override
-    public Player getLeader(String id) {
+    public UUID getLeader(String id) {
         Faction faction = FactionColl.get().get(id);
 
         if(faction == null)return null;
 
         String uuid = faction.getLeader().getId();
 
-        UUID id1 = UUID.fromString(uuid);
-
-        return Bukkit.getPlayer(id1);
+        return UUID.fromString(uuid);
     }
 
     @Override
@@ -837,6 +827,16 @@ public class MCoreIntegration implements MKFaction, ShieldIntegration {
     public boolean isShieldActive(String id) {
         return this.isShieldActiveNow(id);
     }
-}
 
-*/
+    @Override
+    public List<UUID> getAllMembers(String id) {
+        List<UUID> all = new ArrayList<>();
+        for (Player p : getOnlineMembers(id)) {
+            all.add(p.getUniqueId());
+        }
+        for (OfflinePlayer p : getOfflineMembers(id)) {
+            all.add(p.getUniqueId());
+        }
+        return all;
+    }
+}

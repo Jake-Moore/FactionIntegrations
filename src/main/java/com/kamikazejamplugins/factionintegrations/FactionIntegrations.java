@@ -54,38 +54,44 @@ public class FactionIntegrations {
 
     private static boolean setupFactions() throws NoSuchMethodException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
         final Plugin uuidTest = Bukkit.getPluginManager().getPlugin("Factions");
-        if (uuidTest == null) {
-            return false;
-        }
+        if (uuidTest == null) { return false; }
+
+        //TODO: Don't have the jar for this so I can't test it
         if (uuidTest.getDescription().getAuthors().contains("Elapsed")) {
             FactionIntegrations.integration = new AtlasIntegration();
             Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into AtlasFactions!"));
             return true;
         }
 
-        /* Add support for this eventually
+        // This is Factions-Joseph.jar
         if (uuidTest.getDescription().getAuthors().contains("Cayorion")) {
             FactionIntegrations.integration = new MCoreIntegration();
             Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into Joseph MassiveCore Factions!"));
             return true;
         }
-        */
 
+        //TODO: Don't have the jar for this so I can't test it
         if (uuidTest.getDescription().getAuthors().contains("AL56AF50") || uuidTest.getDescription().getAuthors().contains("SupremeDev")) {
             FactionIntegrations.integration = new SupremeIntegration();
             Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into SupremeFactions!"));
             return true;
         }
+
+        //TODO: Don't have the jar for this so I can't test it
         if (uuidTest.getDescription().getAuthors().contains("ipodtouch0218")) {
             FactionIntegrations.integration = new StellarIntegration();
             Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into StellarFactions!"));
             return true;
         }
+
+        // This is Factions-Savage.jar
         if (uuidTest.getDescription().getMain().contains("SavageFactions")) {
             FactionIntegrations.integration = new SavageFactionsIntegration();
             Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into SavageFactions!"));
             return true;
         }
+
+        // This is SaberFactionsX.jar
         if (uuidTest.getDescription().getAuthors().contains("DroppingAnvil")) {
             if (uuidTest.getDescription().getVersion().equals("1.6.9.5-2.0.6-X")) {
                 FactionIntegrations.integration = new SaberFactionsXIntegration();
@@ -96,27 +102,35 @@ public class FactionIntegrations {
             Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into SaberFactions!"));
             return true;
         }
+
+        // TODO: Don't have the jar for this so I can't test it
         if (uuidTest.getDescription().getAuthors().contains("LockedThread")) {
             FactionIntegrations.integration = new LockedThreadIntegration();
             Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into LockedThread factions!"));
             return true;
         }
+
+        // This is Factions-Jerry.jar
         if (uuidTest.getDescription().getAuthors().contains("CmdrKittens") && uuidTest.getDescription().getAuthors().contains("Jerry")) {
             FactionIntegrations.integration = new JerryIntegration();
             Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into FactionsUUID (Jerry's Fork)!"));
             return true;
         }
+
+        // This is FactionsUUID.jar
         if (uuidTest.getDescription().getAuthors().contains("CmdrKittens")) {
             FactionIntegrations.integration = new UUIDIntegration();
             Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into FactionsUUID!"));
             return true;
         }
+
+        // This is Factions-Jartex.jar
         if (uuidTest.getDescription().getAuthors().contains("JustThiemo")) {
             FactionIntegrations.integration = new JartexIntegration();
             Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into FactionsUUID (Jartex)!"));
             return true;
         }
-        //TODO add McoreIntegration here too
+
         return false;
     }
 

@@ -12,7 +12,6 @@ import com.massivecraft.factions.event.*;
 import com.massivecraft.factions.iface.RelationParticipator;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
