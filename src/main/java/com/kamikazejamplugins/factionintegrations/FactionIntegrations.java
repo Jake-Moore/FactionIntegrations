@@ -25,6 +25,17 @@ public class FactionIntegrations {
                 plugin.getLogger().info("Failed to setup Factions Integration");
                 plugin.getPluginLoader().disablePlugin(plugin);
             }
+
+            // Yoink all this shit from golfing :) ty
+            try {
+                plugin.getServer().getPluginManager().registerEvents(FactionIntegrations.integration, plugin);
+            }
+            catch (Exception e) {
+                Bukkit.getConsoleSender().sendMessage(String.format("[%s] - Disabled due to error during setup of integration!", plugin.getName()));
+                plugin.getServer().getPluginManager().disablePlugin(plugin);
+                e.printStackTrace();
+                return;
+            }
         }catch (Exception e) {
             e.printStackTrace();
             plugin.getLogger().info("Failed to setup Factions Integration");
