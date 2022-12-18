@@ -153,7 +153,7 @@ public class UUIDIntegration implements KFaction {
         canBuild = Class.forName("com.massivecraft.factions.listeners.FactionsBlockListener").getMethod("playerCanBuildDestroyBlock", Player.class, Location.class, permissibleEnum, boolean.class);
         try {
             getMaxTNT = factionClass.getDeclaredMethod("getMaxTNT");
-        }catch (NoSuchMethodError ignored) {
+        }catch (NoSuchMethodException ignored) {
             getMaxTNT = factionClass.getDeclaredMethod("getMaxTNTBank");
         }
 
