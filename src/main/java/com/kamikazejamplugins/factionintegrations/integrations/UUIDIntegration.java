@@ -110,7 +110,7 @@ public class UUIDIntegration implements KFaction {
     private Method relationTo, setRole;
     private Object leader, coleader, moderator, normal, recruit;
 
-    public UUIDIntegration() throws ClassNotFoundException, NoSuchMethodException, NoSuchFieldException {
+    public UUIDIntegration() throws ClassNotFoundException, NoSuchMethodException {
         Class<?> permissibleEnum = Class.forName("com.massivecraft.factions.perms.PermissibleAction");
         Class<?> factionClass = Class.forName("com.massivecraft.factions.Faction");
 
@@ -151,7 +151,12 @@ public class UUIDIntegration implements KFaction {
         }
 
         canBuild = Class.forName("com.massivecraft.factions.listeners.FactionsBlockListener").getMethod("playerCanBuildDestroyBlock", Player.class, Location.class, permissibleEnum, boolean.class);
-        getMaxTNT = factionClass.getDeclaredMethod("getMaxTNT");
+        try {
+            getMaxTNT = factionClass.getDeclaredMethod("getMaxTNT");
+        }catch (NoSuchMethodError ignored) {
+            getMaxTNT = factionClass.getDeclaredMethod("getMaxTNTBank");
+        }
+
         chestInventory = factionClass.getMethod("getChest");
     }
 
