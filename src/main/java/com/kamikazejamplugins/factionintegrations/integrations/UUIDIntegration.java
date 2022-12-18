@@ -157,7 +157,11 @@ public class UUIDIntegration implements KFaction {
             getMaxTNT = factionClass.getDeclaredMethod("getMaxTNTBank");
         }
 
-        chestInventory = factionClass.getMethod("getChest");
+        try {
+            chestInventory = factionClass.getMethod("getChest");
+        }catch (NoSuchMethodException ignored) {
+            chestInventory = factionClass.getDeclaredMethod("getInventory");
+        }
     }
 
     @Override
