@@ -2,9 +2,9 @@ name: Maven Deploy & Release
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -49,7 +49,7 @@ jobs:
     - name: Create Release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "target/kamicommon-${{ steps.project.outputs.version }}.jar"
+        artifacts: "target/factionintegrations-${{ steps.project.outputs.version }}.jar"
         allowUpdates: true
         removeArtifacts: true
         omitBodyDuringUpdate: true
@@ -65,7 +65,7 @@ jobs:
       uses: schneegans/dynamic-badges-action@v1.7.0
       with:
         auth: ${{ secrets.GIST_SECRET }}
-        gistID: 5dfd7c9bb8b81ae5867c81e9a77ee821
+        gistID: 176f75278bd544e8657fdcf5562e7693
         filename: test.json # Use test.svg if you want to use the SVG mode.
         label: Latest Release
         message: "${{ steps.project.outputs.version }}"
