@@ -29,7 +29,7 @@ jobs:
       - name: Maven Settings
         uses: s4u/maven-settings-action@v2.8.0
         with:
-          servers: '[{"id": "luxious-factions-libs", "username": "${{ secrets.LUXIOUS_LIBS_NAME }}", "password": "${{ secrets.LUXIOUS_LIBS_SECRET }}"}]'
+          servers: '[{"id": "luxious-factions-libs", "username": "${{ secrets.MAVEN_NAME }}", "password": "${{ secrets.MAVEN_SECRET }}"}]'
 
       - name: Build
         run: mvn -B package --file pom.xml
