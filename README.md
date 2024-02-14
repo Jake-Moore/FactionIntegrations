@@ -2,10 +2,20 @@
 > <a href="https://github.com/Jake-Moore/FactionIntegrations/releases/latest"> <img alt="Latest Release" src="https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/Jake-Moore/176f75278bd544e8657fdcf5562e7693/raw/test.json" /></a>
 
 # FactionIntegrations
+Compatibility layer for several factions forks
+- AtlasFactions
+- VulcanFactions
+- Joseph's Factions (MCore Factions)
+- SaberFactions
+- SaberXFactions
+- StellarFactions
+- FactionsUUID
+- various privatized forks
 
-Compatibility for Several factions Plugins (WIP)
-
-- Should probably rework this repo using Maven modules, to avoid using reflection
+Forks not supported (and not planned)
+- SavageFactions
+- SupremeFactions
+- UltimateFactionsV2
 
 ## Using the Library
 
