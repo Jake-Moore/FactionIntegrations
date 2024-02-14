@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--suppress MavenDuplicatePluginInspection -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>FactionIntegrations-dist</artifactId>
+    <artifactId>dist</artifactId>
     <packaging>pom</packaging>
 
     <parent>
@@ -55,7 +56,7 @@
                 <version>3.1.0</version>
                 <executions>
                     <execution>
-                        <id>rename-and-remove-files</id>
+                        <id>prepare-files-for-deploy</id>
                         <phase>package</phase>
                         <goals>
                             <goal>run</goal>
@@ -64,8 +65,6 @@
                             <target>
                                 <delete file="${project.build.directory}/${project.build.finalName}.jar" />
                                 <delete file="${project.build.directory}/${project.build.finalName}-Source.jar" />
-
-                                <!-- Rename a file -->
                                 <copy file="${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar" tofile="${project.build.directory}/${project.build.finalName}-Source.jar" />
                             </target>
                         </configuration>
@@ -97,7 +96,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 

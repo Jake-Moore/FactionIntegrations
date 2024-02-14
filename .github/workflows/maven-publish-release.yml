@@ -44,7 +44,7 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "target/factionintegrations-${{ steps.project.outputs.version }}.jar"
+          artifacts: "dist/target/FactionIntegrations-${{ steps.project.outputs.version }}-Source.jar"
           allowUpdates: true
           removeArtifacts: true
           omitBodyDuringUpdate: true
