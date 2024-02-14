@@ -879,5 +879,15 @@ public class MCoreIntegration implements MKFaction, ShieldIntegration {
     public boolean isShieldActive(String id) {
         return this.isShieldActiveNow(id);
     }
+
+    @EventHandler
+    public void onPowerLoss(EventFactionsPowerChange e) {
+        double curr = e.getMPlayer().getPower();
+        if (e.getNewPower() >= curr) { return; }
+
+        KPowerLossEvent event = new KPowerLossEvent(e.getMPlayer().getPlayer());
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) e.setCancelled(true);
+    }
 }
 

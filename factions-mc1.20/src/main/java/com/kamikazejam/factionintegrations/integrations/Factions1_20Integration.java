@@ -627,5 +627,15 @@ public class Factions1_20Integration implements MKFaction {
     public String getSafezone() {
         return FactionColl.get().getSafezone().getId();
     }
+
+    @EventHandler
+    public void onPowerLoss(EventFactionsPowerChange e) {
+        double curr = e.getMPlayer().getPower();
+        if (e.getNewPower() >= curr) { return; }
+
+        KPowerLossEvent event = new KPowerLossEvent(e.getMPlayer().getPlayer());
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) e.setCancelled(true);
+    }
 }
 

@@ -998,4 +998,11 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public boolean isShieldActive(String id) {
         return this.isShieldActiveNow(id);
     }
+
+    @EventHandler
+    public void onPowerLoss(PowerLossEvent e) {
+        KPowerLossEvent event = new KPowerLossEvent(e.getfPlayer().getPlayer());
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) e.setCancelled(true);
+    }
 }

@@ -790,5 +790,12 @@ public class NewUUIDIntegration implements KFaction {
     public String getSafezone() {
         return Factions.getInstance().getSafeZone().getId();
     }
+
+    @EventHandler
+    public void onPowerLoss(PowerLossEvent e) {
+        KPowerLossEvent event = new KPowerLossEvent(e.getfPlayer().getPlayer());
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) e.setCancelled(true);
+    }
 }
 

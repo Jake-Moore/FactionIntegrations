@@ -1,10 +1,14 @@
 package com.kamikazejam.factionintegrations.integrations;
 
+import com.kamikazejam.factionintegrations.event.KPowerLossEvent;
 import com.kamikazejam.factionintegrations.shield.ShieldIntegration;
 import com.massivecraft.factions.*;
+import com.massivecraft.factions.event.PowerLossEvent;
 import com.massivecraft.factions.objects.Strike;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.Inventory;
 
 import java.lang.reflect.Field;
@@ -186,6 +190,13 @@ public class JerryIntegration extends UUIDIntegration implements ShieldIntegrati
 
         }
         return false;
+    }
+
+    @EventHandler
+    public void onPowerLoss(PowerLossEvent e) {
+        KPowerLossEvent event = new KPowerLossEvent(e.getfPlayer().getPlayer());
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) e.setCancelled(true);
     }
 }
 
