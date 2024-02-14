@@ -13,6 +13,7 @@ import org.bukkit.inventory.Inventory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public interface KFaction extends Listener {
 
     default void setTnT(String id, long amount) {
@@ -190,4 +191,67 @@ public interface KFaction extends Listener {
     String getWarzone();
 
     String getSafezone();
+
+
+    default void addMoney(String factionId, double amount) {
+        throw new UnsupportedOperationException("This factions fork does not support this!");
+    }
+
+    default void subtractMoney(String factionId, double amount) {
+        throw new UnsupportedOperationException("This factions fork does not support this!");
+    }
+
+    default void setMoney(String factionId, double amount) {
+        throw new UnsupportedOperationException("This factions fork does not support this!");
+    }
+
+    default double getMoney(String factionId) {
+        throw new UnsupportedOperationException("This factions fork does not support this!");
+    }
+
+
+    default void addMobcoins(String factionId, int amount) {
+        throw new UnsupportedOperationException("This factions fork does not support this!");
+    }
+
+    default void subtractMobcoins(String factionId, int amount) {
+        throw new UnsupportedOperationException("This factions fork does not support this!");
+    }
+
+    default void setMobcoins(String factionId, double amount) {
+        throw new UnsupportedOperationException("This factions fork does not support this!");
+    }
+
+    default double getMobcoins(String factionId) {
+        throw new UnsupportedOperationException("This factions fork does not support this!");
+    }
+
+    default void addExp(String factionId, int amount) {
+        throw new UnsupportedOperationException("This factions fork does not support this!");
+    }
+
+    default void subtractExp(String factionId, int amount) {
+        throw new UnsupportedOperationException("This factions fork does not support this!");
+    }
+
+    default void setExp(String factionId, int amount) {
+        throw new UnsupportedOperationException("This factions fork does not support this!");
+    }
+
+    default int getExp(String factionId) {
+        throw new UnsupportedOperationException("This factions fork does not support this!");
+    }
+
+    default boolean supportsMoneyOperations() {
+        return false;
+    }
+
+    default boolean supportsExpOperations() {
+        return false;
+    }
+
+    default boolean supportsMobcoinsOperations() {
+        return false;
+    }
+
 }

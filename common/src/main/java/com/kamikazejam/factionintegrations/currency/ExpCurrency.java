@@ -10,9 +10,8 @@ public class ExpCurrency implements Currency {
     @Override
     public double getBalance(String id) {
         KFaction i = FactionIntegrations.getIntegration();
-        if (i instanceof JartexIntegration) {
-            JartexIntegration integration = (JartexIntegration) i;
-            return integration.getExp(id);
+        if (i.supportsExpOperations()) {
+            return i.getExp(id);
         }
 
         double total = 0;
@@ -25,14 +24,13 @@ public class ExpCurrency implements Currency {
     @Override
     public void addBalance(String id, double add) {
         KFaction i = FactionIntegrations.getIntegration();
-        if (i instanceof JartexIntegration) {
-            JartexIntegration integration = (JartexIntegration) i;
-            integration.addExp(id, (int) add);
+        if (i.supportsExpOperations()) {
+            i.addExp(id, (int) add);
             return;
         }
 
         //oof
-        if (i.getOnlineMembers(id).size() == 0) {
+        if (i.getOnlineMembers(id).isEmpty()) {
             return;
         }
 
@@ -42,9 +40,8 @@ public class ExpCurrency implements Currency {
     @Override
     public void subtractBalance(String id, double remove) {
         KFaction i = FactionIntegrations.getIntegration();
-        if (i instanceof JartexIntegration) {
-            JartexIntegration integration = (JartexIntegration) i;
-            integration.subtractMoney(id, remove);
+        if (i.supportsExpOperations()) {
+            i.subtractMoney(id, remove);
             return;
         }
 

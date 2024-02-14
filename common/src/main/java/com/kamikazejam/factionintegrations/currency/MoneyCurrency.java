@@ -12,9 +12,8 @@ public class MoneyCurrency implements Currency {
     @Override
     public double getBalance(String id) {
         KFaction i = FactionIntegrations.getIntegration();
-        if (i instanceof JartexIntegration) {
-            JartexIntegration integration = (JartexIntegration) i;
-            return integration.getMoney(id);
+        if (i.supportsMoneyOperations()) {
+            return i.getMoney(id);
         }
 
         double total = 0;
@@ -27,9 +26,8 @@ public class MoneyCurrency implements Currency {
     @Override
     public void addBalance(String id, double add) {
         KFaction i = FactionIntegrations.getIntegration();
-        if (i instanceof JartexIntegration) {
-            JartexIntegration integration = (JartexIntegration) i;
-            integration.addMoney(id, add);
+        if (i.supportsMoneyOperations()) {
+            i.addMoney(id, add);
             return;
         }
 
@@ -40,9 +38,8 @@ public class MoneyCurrency implements Currency {
     @Override
     public void subtractBalance(String id, double remove) {
         KFaction i = FactionIntegrations.getIntegration();
-        if (i instanceof JartexIntegration) {
-            JartexIntegration integration = (JartexIntegration) i;
-            integration.subtractMoney(id, remove);
+        if (i.supportsMoneyOperations()) {
+            i.subtractMoney(id, remove);
             return;
         }
 

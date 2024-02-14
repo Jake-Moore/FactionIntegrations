@@ -1,8 +1,8 @@
 package com.kamikazejam.factionintegrations;
 
 import com.kamikazejam.factionintegrations.integrations.KFaction;
-import com.kamikazejam.kamicommon.nms.NmsManager;
-import com.kamikazejam.kamicommon.util.StringUtil;
+import com.kamikazejam.factionintegrations.utils.NmsManager;
+import com.kamikazejam.factionintegrations.utils.StringUtil;
 import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -72,7 +72,7 @@ public class FactionIntegrations {
         }
 
         // This is MC 1.20 Factions
-        if (uuidTest.getDescription().getAuthors().contains("i01") && NmsManager.getFormattedNmsDouble() >= 1180) {
+        if (uuidTest.getDescription().getAuthors().contains("i01") && NmsManager.isAtOrAfter(18)) {
             FactionIntegrations.integration = createIntegration("Factions1_20Integration");
             Bukkit.getConsoleSender().sendMessage(c("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into FactionsX!"));
             return true;
