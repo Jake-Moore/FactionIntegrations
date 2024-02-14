@@ -3,7 +3,7 @@
   <parent>
     <artifactId>factionintegrations</artifactId>
     <groupId>com.kamikazejam</groupId>
-    <version>2.1.0-PRERELEASE</version>
+    <version>2.1.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>factions-newuuid</artifactId>
@@ -11,7 +11,7 @@
     <dependency>
       <groupId>com.kamikazejam</groupId>
       <artifactId>common</artifactId>
-      <version>2.1.0-PRERELEASE</version>
+      <version>2.1.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
