@@ -46,12 +46,17 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
 
     @EventHandler
     public void onLandUnclaimEvent(LandUnclaimEvent e) {
-        Bukkit.getPluginManager().callEvent(new KLandUnclaimEvent(e.getFaction().getId(), e.getLocation().getWorldName(), new Integer[]{(int) e.getLocation().getX(), (int) e.getLocation().getZ()}, e.getfPlayer().getPlayer()));
+        Chunk chunk = e.getLocation().getChunk();
+        KLandUnclaimEvent event = new KLandUnclaimEvent(e.getFaction().getId(), e.getLocation().getWorldName(), new Integer[]{chunk.getX(), chunk.getZ()}, e.getfPlayer().getPlayer());
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) e.setCancelled(true);
     }
 
     @EventHandler
     public void onLandUnclaimallEvent(LandUnclaimAllEvent e) {
-        Bukkit.getPluginManager().callEvent(new KLandUnclaimallEvent(e.getFaction().getId(), "None", new Integer[]{0, 0}, e.getfPlayer().getPlayer()));
+        KLandUnclaimallEvent event = new KLandUnclaimallEvent(e.getFaction().getId(), "None", new Integer[]{0, 0}, e.getfPlayer().getPlayer());
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) e.setCancelled(true);
     }
 
     @Override

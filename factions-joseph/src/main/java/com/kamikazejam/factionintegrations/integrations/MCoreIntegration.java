@@ -72,7 +72,9 @@ public class MCoreIntegration implements MKFaction, ShieldIntegration {
                 case SELL:
                 case PILLAGE:
                 case NONE:
-                    Bukkit.getPluginManager().callEvent(new KLandUnclaimEvent(faction.getId(), ps.getWorld(), new Integer[]{ps.getChunkX(), ps.getChunkZ()}, create.getMPlayer().getPlayer()));
+                    KLandUnclaimEvent uEvent = new KLandUnclaimEvent(faction.getId(), ps.getWorld(), new Integer[]{ps.getChunkX(), ps.getChunkZ()}, create.getMPlayer().getPlayer());
+                    Bukkit.getPluginManager().callEvent(uEvent);
+                    if (uEvent.isCancelled()) create.setCancelled(true);
                     break;
                 case CONQUER:
                     if (!create.getMPlayer().isOverriding()) {

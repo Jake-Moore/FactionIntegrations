@@ -1,8 +1,9 @@
 package com.kamikazejam.factionintegrations.event;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 
-public abstract class KLandEvent extends KFactionEvent {
+public abstract class KLandEvent extends KFactionEvent implements Cancellable {
     private final Integer[] location;
 
     private final String world;
@@ -33,5 +34,17 @@ public abstract class KLandEvent extends KFactionEvent {
 
     public String getWorld() {
         return world;
+    }
+
+    private boolean cancelled = false;
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean b) {
+        this.cancelled = b;
     }
 }
