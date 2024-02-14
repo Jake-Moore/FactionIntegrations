@@ -6,12 +6,17 @@
 
     <groupId>com.kamikazejam</groupId>
     <artifactId>factionintegrations</artifactId>
-    <version>2.0.3</version>
-    <packaging>jar</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <name>FactionIntegrations</name>
-
     <description>Utility Jar to help plugins be compatible between various Factions Jars</description>
+
+    <modules>
+        <module>factions-atlas</module>
+        <module>factions-jartex</module>
+    </modules>
+
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -51,12 +56,13 @@
             <name>Luxious Repository</name>
             <url>https://nexus.luxiouslabs.net/public</url>
         </repository>
-        <!-- Contains Licensed Faction Jar and other private dependencies -->
+
         <repository>
-            <id>luxious-private</id>
+            <id>luxious-factions-libs</id>
             <name>Luxious Repository</name>
-            <url>https://nexus.luxiouslabs.net/private</url>
+            <url>https://nexus.luxiouslabs.net/factions-libs</url>
         </repository>
+
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
@@ -64,12 +70,12 @@
     </repositories>
 
     <dependencies>
+        <!--suppress VulnerableLibrariesLocal -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>1.8.8-R0.1-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/libs/spigot-1.8.8-R0.1-SNAPSHOT.jar</systemPath>
+            <scope>provided</scope>
         </dependency>
 
         <!--suppress VulnerableLibrariesLocal -->
@@ -86,7 +92,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- KamiCommon -->
+        <!-- KamiCommon (luxious-public) -->
         <dependency>
             <groupId>com.kamikazejam</groupId>
             <artifactId>kamicommon</artifactId>
@@ -94,64 +100,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Essentials -->
-        <dependency>
-            <groupId>com.earth2me</groupId>
-            <artifactId>essentials</artifactId>
-            <version>2.21.0-dev</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- This is Factions-Golfing -->
-        <dependency>
-            <groupId>com.massivecraft</groupId>
-            <artifactId>Factions-Golfing</artifactId>
-            <version>1.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- This is JartexFactions -->
-        <dependency>
-            <groupId>com.massivecraft</groupId>
-            <artifactId>Factions-Jartex</artifactId>
-            <version>1.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-
-        <!-- This is Factions-Jerry -->
-        <dependency>
-            <groupId>com.massivecraft</groupId>
-            <artifactId>Factions-Jerry</artifactId>
-            <version>1.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- This is Factions-Joseph -->
-        <dependency>
-            <groupId>com.massivecraft</groupId>
-            <artifactId>Factions-Joseph</artifactId>
-            <version>1.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- This is Factions-Savage -->
-        <dependency>
-            <groupId>com.massivecraft</groupId>
-            <artifactId>Factions-Savage</artifactId>
-            <version>1.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- This is Factions-UUID -->
-        <dependency>
-            <groupId>com.massivecraft</groupId>
-            <artifactId>Factions-UUID</artifactId>
-            <version>1.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- This is MassiveCore -->
+        <!-- This is MassiveCore (luxious-factions-libs) -->
         <dependency>
             <groupId>com.massivecraft</groupId>
             <artifactId>massivecore</artifactId>
@@ -159,21 +108,5 @@
             <scope>provided</scope>
         </dependency>
 
-
-
-        <!-- Grizzly (For mob-coins currency) -->
-        <dependency>
-            <groupId>net.jartex.factions</groupId>
-            <artifactId>JartexFactions</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>net.craftimex.modules</groupId>
-            <artifactId>MissionsModule</artifactId>
-            <version>1.3.1</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 </project>
