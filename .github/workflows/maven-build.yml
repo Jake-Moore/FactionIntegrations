@@ -29,39 +29,7 @@ jobs:
       - name: Maven Settings
         uses: s4u/maven-settings-action@v2.8.0
         with:
-          servers: '[{"id": "luxious-public", "username": "${{ secrets.LUXIOUS_PUBLIC_NAME }}", "password": "${{ secrets.LUXIOUS_PUBLIC_SECRET }}"}, {"id": "luxious-private", "username": "${{ secrets.MAVEN_NAME }}", "password": "${{ secrets.MAVEN_SECRET }}"}]'
+          servers: '[{"id": "luxious-factions-libs", "username": "${{ secrets.LUXIOUS_LIBS_NAME }}", "password": "${{ secrets.LUXIOUS_LIBS_SECRET }}"}]'
 
       - name: Build
         run: mvn -B package --file pom.xml
-
-      #--------------------------------------------------------------------------------------------
-      #           Create a Github Release
-      #--------------------------------------------------------------------------------------------
-      - name: Extract Maven Project Version
-        run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
-        id: project
-
-      - name: Create Release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "target/factionintegrations-${{ steps.project.outputs.version }}.jar"
-          allowUpdates: true
-          removeArtifacts: true
-          omitBodyDuringUpdate: true
-          omitDraftDuringUpdate: true
-          omitNameDuringUpdate: true
-          omitPrereleaseDuringUpdate: true
-          tag: "${{ steps.project.outputs.version }}"
-
-
-
-      # Update the README.md Badge with the new version
-      - name: Create Version Badge
-        uses: schneegans/dynamic-badges-action@v1.7.0
-        with:
-          auth: ${{ secrets.GIST_SECRET }}
-          gistID: 176f75278bd544e8657fdcf5562e7693
-          filename: test.json # Use test.svg if you want to use the SVG mode.
-          label: Latest Release
-          message: "${{ steps.project.outputs.version }}"
-          color: blue
