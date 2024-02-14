@@ -32,7 +32,9 @@ public class ExpCurrency implements Currency {
         }
 
         //oof
-        if (i.getOnlineMembers(id).size() == 0) { return; }
+        if (i.getOnlineMembers(id).size() == 0) {
+            return;
+        }
 
         EXP.giveExp(i.getOnlineMembers(id).get(0), (int) add);
     }

@@ -23,8 +23,8 @@ import java.util.*;
 public class AtlasIntegration implements KFaction, ShieldIntegration {
 
     @EventHandler
-    public void onFactionCreate(FactionCreateEvent e){
-        new BukkitRunnable(){
+    public void onFactionCreate(FactionCreateEvent e) {
+        new BukkitRunnable() {
             @Override
             public void run() {
                 Bukkit.getPluginManager().callEvent(new KFactionCreateEvent(getTagFromId(e.getFactionTag())));
@@ -33,59 +33,59 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     }
 
     @EventHandler
-    public void onFactionDisband(FactionDisbandEvent e){
+    public void onFactionDisband(FactionDisbandEvent e) {
         Bukkit.getPluginManager().callEvent(new KFactionDisbandEvent(e.getFaction().getId(), e.getFaction().getTag()));
     }
 
     @EventHandler
-    public void onLandClaimEvent(LandClaimEvent e){
+    public void onLandClaimEvent(LandClaimEvent e) {
         KLandClaimEvent event = new KLandClaimEvent(e.getFaction().getId(), e.getLocation().getWorldName(), new Integer[]{(int) e.getLocation().getX(), (int) e.getLocation().getZ()}, e.getfPlayer().getPlayer());
         Bukkit.getPluginManager().callEvent(event);
 
-        if(event.isCancelled())e.setCancelled(true);
+        if (event.isCancelled()) e.setCancelled(true);
     }
 
     @EventHandler
-    public void onLandUnclaimEvent(LandUnclaimEvent e){
+    public void onLandUnclaimEvent(LandUnclaimEvent e) {
         Bukkit.getPluginManager().callEvent(new KLandUnclaimEvent(e.getFaction().getId(), e.getLocation().getWorldName(), new Integer[]{(int) e.getLocation().getX(), (int) e.getLocation().getZ()}, e.getfPlayer().getPlayer()));
     }
 
     @EventHandler
-    public void onLandUnclaimallEvent(LandUnclaimAllEvent e){
+    public void onLandUnclaimallEvent(LandUnclaimAllEvent e) {
         Bukkit.getPluginManager().callEvent(new KLandUnclaimallEvent(e.getFaction().getId(), "None", new Integer[]{0, 0}, e.getfPlayer().getPlayer()));
     }
 
     @EventHandler
-    public void onJoin(FPlayerJoinEvent e){
-        switch(e.getReason()){
+    public void onJoin(FPlayerJoinEvent e) {
+        switch (e.getReason()) {
             case CREATE:
                 KPlayerJoinEvent event2 = new KPlayerJoinEvent(e.getFaction().getId(), e.getfPlayer().getId(), KPlayerEvent.Reason.CREATE);
                 Bukkit.getPluginManager().callEvent(event2);
 
-                if(event2.isCancelled())e.setCancelled(true);
+                if (event2.isCancelled()) e.setCancelled(true);
                 break;
             case COMMAND:
                 KPlayerJoinEvent event1 = new KPlayerJoinEvent(e.getFaction().getId(), e.getfPlayer().getId(), KPlayerEvent.Reason.COMMAND);
                 Bukkit.getPluginManager().callEvent(event1);
 
-                if(event1.isCancelled())e.setCancelled(true);
+                if (event1.isCancelled()) e.setCancelled(true);
                 break;
             case LEADER:
                 KPlayerJoinEvent event = new KPlayerJoinEvent(e.getFaction().getId(), e.getfPlayer().getId(), KPlayerEvent.Reason.LEADER);
                 Bukkit.getPluginManager().callEvent(event);
 
-                if(event.isCancelled())e.setCancelled(true);
+                if (event.isCancelled()) e.setCancelled(true);
                 break;
         }
     }
 
     @EventHandler
-    public void onJoin(FPlayerLeaveEvent e){
-        if(e.getFaction().getSize() == 1){
+    public void onJoin(FPlayerLeaveEvent e) {
+        if (e.getFaction().getSize() == 1) {
             Bukkit.getPluginManager().callEvent(new KFactionDisbandEvent(e.getFaction().getId(), e.getFaction().getTag()));
         }
 
-        switch(e.getReason()){
+        switch (e.getReason()) {
             case DISBAND:
                 Bukkit.getPluginManager().callEvent(new KPlayerLeaveEvent(e.getFaction().getId(), e.getfPlayer().getId(), KPlayerEvent.Reason.DISBAND));
                 break;
@@ -264,39 +264,39 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
 
     @Override
     public void setTnT(String id, long amountL) {
-        try{
+        try {
             int amount = (int) amountL;
             Faction faction = Factions.getInstance().getFactionById(id);
 
             int limit = (int) getMaxTnt(id);
 
             take.invoke(faction, getBalance.invoke(faction));
-            if(amount > limit){
+            if (amount > limit) {
                 add.invoke(faction, limit);
                 return;
             }
             add.invoke(faction, amount);
-        }catch(IllegalAccessException | InvocationTargetException e){
+        } catch (IllegalAccessException | InvocationTargetException e) {
             Bukkit.getLogger().severe("Error setting tnt bank balance!");
         }
     }
 
     @Override
     public long addTnT(String id, long amountL) {
-        try{
+        try {
             int amount = (int) amountL;
             Faction faction = Factions.getInstance().getFactionById(id);
             int totalAmount = ((Long) getBalance.invoke(faction)).intValue();
 
             int limit = (int) getMaxTnt(id);
 
-            if(amount + totalAmount > limit){
+            if (amount + totalAmount > limit) {
                 add.invoke(faction, limit - totalAmount);
                 return limit - totalAmount;
             }
             add.invoke(faction, amount);
             return amount;
-        }catch(IllegalAccessException | InvocationTargetException e){
+        } catch (IllegalAccessException | InvocationTargetException e) {
             Bukkit.getLogger().severe("Error setting tnt bank balance!");
         }
         return 0;
@@ -304,10 +304,10 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
 
     @Override
     public long getTnT(String id) {
-        try{
+        try {
             Faction faction = Factions.getInstance().getFactionById(id);
             return ((Long) getBalance.invoke(faction)).intValue();
-        }catch(IllegalAccessException | InvocationTargetException e){
+        } catch (IllegalAccessException | InvocationTargetException e) {
             Bukkit.getLogger().severe("Error getting tnt bank balance!");
         }
         return 0;
@@ -318,18 +318,18 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
         try {
             Object upgrade = getUpgrade.invoke(Factions.getInstance().getFactionById(id), tntUpgrade);
             return (int) getExpansion.invoke(upgrade);
-        }catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
         return 0;
     }
 
     @Override
-    public int getStrikes(String id){
-        try{
+    public int getStrikes(String id) {
+        try {
             Faction faction = Factions.getInstance().getFactionById(id);
 
-            if(faction == null)return 0;
+            if (faction == null) return 0;
 
             return ((Set<?>) getStrikes.invoke(faction)).size();
         } catch (IllegalAccessException | InvocationTargetException | NullPointerException ignored) {
@@ -342,9 +342,9 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public double getBalance(String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        try{
+        try {
             return (double) getMoneyBalance.invoke(faction);
-        }catch(InvocationTargetException | IllegalAccessException ignored){
+        } catch (InvocationTargetException | IllegalAccessException ignored) {
 
         }
         return 0.0D;
@@ -354,9 +354,9 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public void addBalance(String id, double add) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        try{
+        try {
             depositMoney.invoke(faction, add);
-        }catch(InvocationTargetException | IllegalAccessException ignored){
+        } catch (InvocationTargetException | IllegalAccessException ignored) {
 
         }
     }
@@ -365,25 +365,25 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public void subtractBalance(String id, double remove) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        try{
+        try {
             withdrawMoney.invoke(faction, remove);
-        }catch(InvocationTargetException | IllegalAccessException ignored){
+        } catch (InvocationTargetException | IllegalAccessException ignored) {
 
         }
     }
 
     @Override
-    public boolean econEnabled(){
+    public boolean econEnabled() {
         return true;
     }
 
     @Override
     public boolean canPlayerBuildThere(Player player, Chunk chunk) {
-        if(isBypassing(player))return true;
+        if (isBypassing(player)) return true;
 
         Faction faction = Board.getInstance().getFactionAt(new FLocation(player.getWorld().getName(), chunk.getX(), chunk.getZ()));
 
-        if(faction.isWilderness())return true;
+        if (faction.isWilderness()) return true;
 
         return getRelationToFaction(player, faction.getId()).isEqualTo(TranslatedRelation.MEMBER);
     }
@@ -396,7 +396,7 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
             return false;
         try {
             return (Boolean) this.isInsideBaseRegion.invoke(faction, fLocation);
-        } catch (InvocationTargetException|IllegalAccessException e) {
+        } catch (InvocationTargetException | IllegalAccessException e) {
             Bukkit.getConsoleSender().sendMessage("Error getting base region!");
             return false;
         }
@@ -410,9 +410,9 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
 
     @Override
     public boolean playerCanBuildThere(Player player, Location location) {
-        try{
+        try {
             return (boolean) canBuild.invoke(null, player, location, "build", true);
-        }catch(IllegalAccessException | InvocationTargetException e){
+        } catch (IllegalAccessException | InvocationTargetException e) {
             return false;
         }
     }
@@ -454,7 +454,7 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
 
         try {
             return (boolean) isShieldActive.invoke(faction);
-        }catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
         return false;
@@ -476,9 +476,9 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
 
     @Override
     public int getMaxPlayers(String id) {
-        try{
+        try {
             return (int) maxMembersField.get(null);
-        }catch (IllegalAccessException ignored){
+        } catch (IllegalAccessException ignored) {
 
         }
         return 0;
@@ -488,8 +488,8 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public int getSize(String id) {
         Faction factionById = Factions.getInstance().getFactionById(id);
 
-        if(factionById == null)return 0;
-        if(factionById.getFPlayers() == null)return 0;
+        if (factionById == null) return 0;
+        if (factionById.getFPlayers() == null) return 0;
 
         return factionById.getFPlayers().size();
     }
@@ -498,7 +498,7 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public boolean isInFactionChest(Player player, String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        try{
+        try {
             return ((Inventory) chestInventory.invoke(faction)).getViewers().contains(player);
         } catch (IllegalAccessException | InvocationTargetException ignored) {
 
@@ -515,8 +515,8 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public void setFaction(Player player, String id) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
 
-        if(id == null){
-            try{
+        if (id == null) {
+            try {
                 leaveFaction.invoke(fPlayer);
             } catch (InvocationTargetException | IllegalAccessException e) {
                 e.printStackTrace();
@@ -524,9 +524,9 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
             return;
         }
 
-        try{
+        try {
             setFaction.invoke(fPlayer, Factions.getInstance().getFactionById(id), false);
-        }catch(IllegalAccessException | InvocationTargetException ignored){
+        } catch (IllegalAccessException | InvocationTargetException ignored) {
 
         }
     }
@@ -535,8 +535,8 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public void setFaction(OfflinePlayer player, String id) {
         FPlayer fPlayer = FPlayers.getInstance().getByOfflinePlayer(player);
 
-        if(id == null){
-            try{
+        if (id == null) {
+            try {
                 leaveFaction.invoke(fPlayer);
             } catch (InvocationTargetException | IllegalAccessException e) {
                 e.printStackTrace();
@@ -544,9 +544,9 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
             return;
         }
 
-        try{
+        try {
             setFaction.invoke(fPlayer, Factions.getInstance().getFactionById(id), false);
-        }catch(IllegalAccessException | InvocationTargetException ignored){
+        } catch (IllegalAccessException | InvocationTargetException ignored) {
 
         }
     }
@@ -555,8 +555,8 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public void setRole(Player player, TranslatedRole translatedRole) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
 
-        try{
-            switch(translatedRole.getValue()){
+        try {
+            switch (translatedRole.getValue()) {
                 case 1:
                     setRole.invoke(fPlayer, recruit);
                     break;
@@ -573,7 +573,7 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
                     setRole.invoke(fPlayer, leader);
                     break;
             }
-        }catch(IllegalAccessException | InvocationTargetException ignored){
+        } catch (IllegalAccessException | InvocationTargetException ignored) {
 
         }
     }
@@ -582,8 +582,8 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public void setRole(OfflinePlayer offlinePlayer, TranslatedRole translatedRole) {
         FPlayer fPlayer = FPlayers.getInstance().getByOfflinePlayer(offlinePlayer);
 
-        try{
-            switch(translatedRole.getValue()){
+        try {
+            switch (translatedRole.getValue()) {
                 case 1:
                     setRole.invoke(fPlayer, recruit);
                     break;
@@ -600,7 +600,7 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
                     setRole.invoke(fPlayer, leader);
                     break;
             }
-        }catch(IllegalAccessException | InvocationTargetException ignored){
+        } catch (IllegalAccessException | InvocationTargetException ignored) {
 
         }
     }
@@ -609,10 +609,10 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public void setPermission(String id, TranslatedRelation relation, String permission, boolean b) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        try{
+        try {
             Object rel = null;
 
-            switch(relation){
+            switch (relation) {
                 case MEMBER:
                     rel = valueOfRelation.invoke(null, "MEMBER");
                     break;
@@ -630,7 +630,7 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
             }
 
             setPermission.invoke(faction, rel, valueOf.invoke(null, permission), allowObject);
-        }catch(Exception ignored){
+        } catch (Exception ignored) {
 
         }
     }
@@ -641,10 +641,10 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
 
         Faction b = Factions.getInstance().getFactionById(other);
 
-        try{
+        try {
             Object rel = null;
 
-            switch(relation){
+            switch (relation) {
                 case MEMBER:
                     rel = valueOfRelation.invoke(null, "MEMBER");
                     break;
@@ -662,7 +662,7 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
             }
 
             setRelationWish.invoke(a, b, rel);
-        }catch(Exception exc){
+        } catch (Exception exc) {
             exc.printStackTrace();
         }
     }
@@ -691,8 +691,8 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public void clearAllClaimsInWorld(String world) {
         World world1 = Bukkit.getWorld(world);
 
-        for(Faction faction : Factions.getInstance().getAllFactions()){
-            if(faction.isWilderness() || faction.isWarZone() || faction.isSafeZone())continue;
+        for (Faction faction : Factions.getInstance().getAllFactions()) {
+            if (faction.isWilderness() || faction.isWarZone() || faction.isSafeZone()) continue;
             Board.getInstance().unclaimAllInWorld(faction.getId(), world1);
         }
     }
@@ -708,7 +708,7 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
 
         Set<String> toReturn = new HashSet<>(allFactions.size());
 
-        for(Faction faction : allFactions){
+        for (Faction faction : allFactions) {
             toReturn.add(faction.getId());
         }
         return toReturn;
@@ -718,7 +718,7 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public Map<String, Set<Integer[]>> getAllClaims(String id) {
         Map<String, Set<Integer[]>> toReturn = new HashMap<>();
 
-        for(FLocation fLocation : Board.getInstance().getAllClaims(id)){
+        for (FLocation fLocation : Board.getInstance().getAllClaims(id)) {
             toReturn.putIfAbsent(fLocation.getWorldName(), new HashSet<>());
 
             toReturn.get(fLocation.getWorldName()).add(new Integer[]{
@@ -732,7 +732,7 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public Inventory getChestInventory(Player player, String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        try{
+        try {
             return (Inventory) chestInventory.invoke(faction);
         } catch (IllegalAccessException | InvocationTargetException ignored) {
 
@@ -772,17 +772,17 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
 
     @Override
     public String getTagFromId(String id) {
-        if(id == null)return "None";
-        if(!Factions.getInstance().isValidFactionId(id))return "None";
+        if (id == null) return "None";
+        if (!Factions.getInstance().isValidFactionId(id)) return "None";
         Faction factionById = Factions.getInstance().getFactionById(id);
-        if(factionById == null)return "None";
+        if (factionById == null) return "None";
         return factionById.getTag();
     }
 
     @Override
     public String getIdFromTag(String tag) {
         Faction byTag = Factions.getInstance().getByTag(tag);
-        if(byTag == null)return null;
+        if (byTag == null) return null;
         return byTag.getId();
     }
 
@@ -794,10 +794,10 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     @Override
     public String getRolePrefix(TranslatedRole translatedRole) {
         String toReturn;
-        try{
-            if(translatedRole == TranslatedRole.ALT)return "";
+        try {
+            if (translatedRole == TranslatedRole.ALT) return "";
             toReturn = (String) getPrefix.invoke(getByValue.invoke(null, translatedRole.getValue() - 1));
-        }catch(Exception ignored){
+        } catch (Exception ignored) {
             return "$";
         }
         return toReturn;
@@ -807,11 +807,11 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public List<Player> getOnlineMembers(String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        if(faction == null)return new ArrayList<>();
+        if (faction == null) return new ArrayList<>();
 
         List<Player> players = new ArrayList<>();
 
-        for(FPlayer fPlayer : faction.getFPlayersWhereOnline(true)){
+        for (FPlayer fPlayer : faction.getFPlayersWhereOnline(true)) {
             players.add(Bukkit.getPlayer(UUID.fromString(fPlayer.getId())));
         }
         return players;
@@ -823,14 +823,14 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
 
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        if(faction == null)return offliners;
+        if (faction == null) return offliners;
 
         faction.getFPlayers().forEach(z -> {
-            if(z.getPlayer() == null){
+            if (z.getPlayer() == null) {
                 offliners.add(Bukkit.getOfflinePlayer(UUID.fromString(z.getId())));
                 return;
             }
-            if(!z.getPlayer().isOnline())offliners.add(Bukkit.getOfflinePlayer(UUID.fromString(z.getId())));
+            if (!z.getPlayer().isOnline()) offliners.add(Bukkit.getOfflinePlayer(UUID.fromString(z.getId())));
         });
 
         return offliners;
@@ -840,7 +840,7 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public UUID getLeader(String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        if(faction == null)return null;
+        if (faction == null) return null;
 
         String uuid = faction.getFPlayerAdmin().getId();
 
@@ -851,11 +851,11 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public OfflinePlayer getOfflineLeader(String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        if(faction == null)return null;
+        if (faction == null) return null;
 
         FPlayer fPlayerAdmin = faction.getFPlayerAdmin();
 
-        if(fPlayerAdmin == null)return null;
+        if (fPlayerAdmin == null) return null;
 
         String uuid = fPlayerAdmin.getId();
 
@@ -894,9 +894,9 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public TranslatedRelation getRelationToFaction(Player player, String id) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
         Faction faction = Factions.getInstance().getFactionById(id);
-        try{
-            return TranslatedRelation.valueOf(((Enum<?>)relationTo.invoke(fPlayer, faction)).name().toUpperCase());
-        }catch(IllegalAccessException | InvocationTargetException e){
+        try {
+            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(fPlayer, faction)).name().toUpperCase());
+        } catch (IllegalAccessException | InvocationTargetException e) {
             return TranslatedRelation.ENEMY;
         }
     }
@@ -904,9 +904,9 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     @Override
     public TranslatedRole getRole(Player player) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-        try{
+        try {
             return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        }catch(InvocationTargetException | IllegalAccessException e){
+        } catch (InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return TranslatedRole.RECRUIT;
@@ -915,9 +915,9 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     @Override
     public TranslatedRole getRole(OfflinePlayer player) {
         FPlayer fPlayer = FPlayers.getInstance().getByOfflinePlayer(player);
-        try{
+        try {
             return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        }catch(InvocationTargetException | IllegalAccessException e){
+        } catch (InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return TranslatedRole.RECRUIT;
@@ -926,9 +926,9 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     @Override
     public TranslatedRole getRole(UUID uuid) {
         FPlayer fPlayer = FPlayers.getInstance().getById(uuid.toString());
-        try{
+        try {
             return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        }catch(InvocationTargetException | IllegalAccessException e){
+        } catch (InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return TranslatedRole.RECRUIT;
@@ -938,10 +938,10 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public TranslatedRelation getFactionRelationToFaction(String id1, String id2) {
         Faction faction1 = Factions.getInstance().getFactionById(id1);
         Faction faction2 = Factions.getInstance().getFactionById(id2);
-        if(faction1 == null || faction2 == null)return TranslatedRelation.ENEMY;
-        try{
-            return TranslatedRelation.valueOf(((Enum<?>)relationTo.invoke(faction1, faction2)).name().toUpperCase());
-        } catch (IllegalAccessException | InvocationTargetException e){
+        if (faction1 == null || faction2 == null) return TranslatedRelation.ENEMY;
+        try {
+            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(faction1, faction2)).name().toUpperCase());
+        } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
         return TranslatedRelation.ENEMY;
@@ -951,24 +951,12 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public TranslatedRelation getRelationToPlayer(Player player, Player player2) {
         FPlayer fPlayer1 = FPlayers.getInstance().getByPlayer(player);
         FPlayer fPlayer2 = FPlayers.getInstance().getByPlayer(player2);
-        try{
-            return TranslatedRelation.valueOf(((Enum<?>)relationTo.invoke(fPlayer1, fPlayer2)).name().toUpperCase());
+        try {
+            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(fPlayer1, fPlayer2)).name().toUpperCase());
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
         return TranslatedRelation.ENEMY;
-    }
-
-    @Override
-    public List<UUID> getAllMembers(String id) {
-        List<UUID> all = new ArrayList<>();
-        for (Player p : getOnlineMembers(id)) {
-            all.add(p.getUniqueId());
-        }
-        for (OfflinePlayer p : getOfflineMembers(id)) {
-            all.add(p.getUniqueId());
-        }
-        return all;
     }
 
     @Override

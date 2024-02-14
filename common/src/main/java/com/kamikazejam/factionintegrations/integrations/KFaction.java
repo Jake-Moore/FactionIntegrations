@@ -10,42 +10,43 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public interface KFaction extends Listener {
 
-    default void setTnT(String id, long amount){}
+    default void setTnT(String id, long amount) {
+    }
 
-    default long addTnT(String id, long amount){
+    default long addTnT(String id, long amount) {
         return 0;
     }
 
-    default long getTnT(String id){
+    default long getTnT(String id) {
         return 0;
     }
 
-    default long getMaxTnt(String id){
+    default long getMaxTnt(String id) {
         return 0;
     }
 
-    default int getStrikes(String id){return 0;}
+    default int getStrikes(String id) {
+        return 0;
+    }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    default boolean isUUID(String in){
-        try{
+    default boolean isUUID(String in) {
+        try {
             UUID.fromString(in);
             return true;
-        }catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return false;
         }
     }
 
     double getBalance(String id);
 
-    default boolean isRelationColorsEnabled(){
+    default boolean isRelationColorsEnabled() {
         return true;
     }
 
@@ -139,8 +140,6 @@ public interface KFaction extends Listener {
 
     List<OfflinePlayer> getOfflineMembers(String id);
 
-    List<UUID> getAllMembers(String id);
-
     UUID getLeader(String id);
 
     OfflinePlayer getOfflineLeader(String id);
@@ -155,7 +154,9 @@ public interface KFaction extends Listener {
 
     boolean isWildernessAt(Location location);
 
-    default boolean isAlt(Player player){return false;}
+    default boolean isAlt(Player player) {
+        return false;
+    }
 
     TranslatedRelation getRelationToFaction(Player player, String id);
 
@@ -168,6 +169,15 @@ public interface KFaction extends Listener {
     TranslatedRelation getFactionRelationToFaction(String id1, String id2);
 
     TranslatedRelation getRelationToPlayer(Player player, Player player2);
+
+    default List<UUID> getAllMembers(String id) {
+        List<UUID> all = new ArrayList<>();
+        all.addAll(getOnlineMembers(id).stream().map(Player::getUniqueId)
+                .collect(Collectors.toList()));
+        all.addAll(getOfflineMembers(id).stream().map(OfflinePlayer::getUniqueId)
+                .collect(Collectors.toList()));
+        return all;
+    }
 
     void setOpen(String factionId, boolean open);
 

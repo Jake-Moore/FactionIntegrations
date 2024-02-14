@@ -3,7 +3,7 @@ package com.kamikazejam.factionintegrations.event;
 import lombok.Getter;
 import org.bukkit.event.HandlerList;
 
-public class KFactionDisbandEvent extends KFactionEvent{
+public class KFactionDisbandEvent extends KFactionEvent {
     @Getter
     private final String factionTag;
 

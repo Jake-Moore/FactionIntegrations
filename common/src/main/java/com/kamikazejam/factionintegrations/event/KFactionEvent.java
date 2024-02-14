@@ -5,7 +5,7 @@ import org.bukkit.event.Event;
 public abstract class KFactionEvent extends Event {
     private final String faction;
 
-    public KFactionEvent(String faction){
+    public KFactionEvent(String faction) {
         this.faction = faction;
     }
 

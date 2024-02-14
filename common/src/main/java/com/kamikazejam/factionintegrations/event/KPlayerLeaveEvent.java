@@ -2,7 +2,7 @@ package com.kamikazejam.factionintegrations.event;
 
 import org.bukkit.event.HandlerList;
 
-public class KPlayerLeaveEvent extends KPlayerEvent{
+public class KPlayerLeaveEvent extends KPlayerEvent {
     public KPlayerLeaveEvent(String faction, String player, Reason reason) {
         super(faction, player, reason);
     }

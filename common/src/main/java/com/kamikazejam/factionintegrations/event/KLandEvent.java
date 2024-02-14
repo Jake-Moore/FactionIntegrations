@@ -2,7 +2,7 @@ package com.kamikazejam.factionintegrations.event;
 
 import org.bukkit.entity.Player;
 
-public abstract class KLandEvent extends KFactionEvent{
+public abstract class KLandEvent extends KFactionEvent {
     private final Integer[] location;
 
     private final String world;
@@ -19,7 +19,7 @@ public abstract class KLandEvent extends KFactionEvent{
         this.location = location;
     }
 
-    public boolean hasClaimer(){
+    public boolean hasClaimer() {
         return this.claimer != null;
     }
 

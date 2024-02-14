@@ -3,7 +3,7 @@ package com.kamikazejam.factionintegrations.event;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 
-public class KLandUnclaimallEvent extends KLandEvent{
+public class KLandUnclaimallEvent extends KLandEvent {
     public KLandUnclaimallEvent(String faction, String string, Integer[] location, Player player) {
         super(faction, string, location, player);
     }

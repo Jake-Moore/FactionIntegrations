@@ -12,7 +12,7 @@ public class JerryGenEvent extends Event implements Cancellable {
     private final Location usedAt;
     private final boolean infiniteBlock;
 
-    public JerryGenEvent(Player player, Location usedAt, boolean infiniteBlock){
+    public JerryGenEvent(Player player, Location usedAt, boolean infiniteBlock) {
         this.player = player;
         this.usedAt = usedAt;
         this.infiniteBlock = infiniteBlock;

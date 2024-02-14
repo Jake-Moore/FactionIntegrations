@@ -6,7 +6,8 @@ import java.util.Locale;
 
 @SuppressWarnings("unused")
 public class EXP {
-    public EXP() {}
+    public EXP() {
+    }
 
     public static void setExp(Player target, String strAmount) {
         setExp(target, strAmount, false);
@@ -49,14 +50,14 @@ public class EXP {
                 neededLevel += target.getLevel();
             }
 
-            amount = (long)getExpToLevel(neededLevel);
+            amount = (long) getExpToLevel(neededLevel);
             setTotalExperience(target, 0);
         } else {
             amount = Long.parseLong(strAmount);
         }
 
         if (give) {
-            amount += (long)getTotalExperience(target);
+            amount += (long) getTotalExperience(target);
         }
 
         if (amount > 2147483647L) {
@@ -67,7 +68,7 @@ public class EXP {
             amount = 0L;
         }
 
-        setTotalExperience(target, (int)amount);
+        setTotalExperience(target, (int) amount);
     }
 
     private static void setTotalExperience(Player player, int exp) {
@@ -79,7 +80,7 @@ public class EXP {
             player.setTotalExperience(0);
             int amount = exp;
 
-            while(amount > 0) {
+            while (amount > 0) {
                 int expToLevel = getExpAtLevel(player);
                 amount -= expToLevel;
                 if (amount >= 0) {
@@ -110,7 +111,7 @@ public class EXP {
         int currentLevel = 0;
 
         int exp;
-        for(exp = 0; currentLevel < level; ++currentLevel) {
+        for (exp = 0; currentLevel < level; ++currentLevel) {
             exp += getExpAtLevel(currentLevel);
         }
 
@@ -122,9 +123,9 @@ public class EXP {
     }
 
     public static int getTotalExperience(Player player) {
-        int exp = Math.round((float)getExpAtLevel(player) * player.getExp());
+        int exp = Math.round((float) getExpAtLevel(player) * player.getExp());
 
-        for(int currentLevel = player.getLevel(); currentLevel > 0; exp += getExpAtLevel(currentLevel)) {
+        for (int currentLevel = player.getLevel(); currentLevel > 0; exp += getExpAtLevel(currentLevel)) {
             --currentLevel;
         }
 
@@ -136,7 +137,7 @@ public class EXP {
     }
 
     public static int getExpUntilNextLevel(Player player) {
-        int exp = Math.round((float)getExpAtLevel(player) * player.getExp());
+        int exp = Math.round((float) getExpAtLevel(player) * player.getExp());
         int nextLevel = player.getLevel();
         return getExpAtLevel(nextLevel) - exp;
     }

@@ -10,6 +10,7 @@ public class KPowerLossEvent extends Event implements Cancellable {
 
     @Getter
     private final Player player;
+
     public KPowerLossEvent(Player player) {
         this.player = player;
     }

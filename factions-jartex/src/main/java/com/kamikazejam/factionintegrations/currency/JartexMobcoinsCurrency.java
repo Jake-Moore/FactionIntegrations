@@ -21,7 +21,9 @@ public class JartexMobcoinsCurrency implements Currency {
         double total = 0;
         for (UUID player : i.getAllMembers(id)) {
             MobCoinsMember member = Members.getMember(player, MobCoinsMember.class);
-            if (member == null) { continue; }
+            if (member == null) {
+                continue;
+            }
             total += member.getBalance();
         }
         return total;
@@ -38,7 +40,9 @@ public class JartexMobcoinsCurrency implements Currency {
 
         UUID leader = i.getLeader(id);
         MobCoinsMember member = Members.getMember(leader, MobCoinsMember.class);
-        if (member == null) { return; }
+        if (member == null) {
+            return;
+        }
         member.addMobCoins((int) add);
     }
 
@@ -54,11 +58,13 @@ public class JartexMobcoinsCurrency implements Currency {
         int toRemove = (int) remove;
         for (UUID player : i.getAllMembers(id)) {
             MobCoinsMember member = Members.getMember(player, MobCoinsMember.class);
-            if (member == null) { continue; }
+            if (member == null) {
+                continue;
+            }
             if (member.getMobCoins() >= toRemove) {
                 member.removeMobCoins(toRemove);
                 return;
-            }else {
+            } else {
                 toRemove -= member.getMobCoins();
                 member.removeMobCoins(member.getMobCoins());
             }

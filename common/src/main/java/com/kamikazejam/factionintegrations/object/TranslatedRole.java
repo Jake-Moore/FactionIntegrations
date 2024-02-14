@@ -15,12 +15,13 @@ public enum TranslatedRole {
     ALT(0);
 
     private final int value;
-    private TranslatedRole(int value){
+
+    private TranslatedRole(int value) {
         this.value = value;
     }
 
-    public static TranslatedRole getByValue(int value){
-        switch (value){
+    public static TranslatedRole getByValue(int value) {
+        switch (value) {
             case 0:
                 return ALT;
             case 1:
@@ -37,27 +38,27 @@ public enum TranslatedRole {
         return null;
     }
 
-    public int getValue(){
+    public int getValue() {
         return this.value;
     }
 
-    public boolean isGreaterThan(TranslatedRole translatedRole){
+    public boolean isGreaterThan(TranslatedRole translatedRole) {
         return this.value > translatedRole.getValue();
     }
 
-    public boolean isEqualTo(TranslatedRole translatedRole){
+    public boolean isEqualTo(TranslatedRole translatedRole) {
         return this.value == translatedRole.getValue();
     }
 
-    public boolean isLessThan(TranslatedRole translatedRole){
+    public boolean isLessThan(TranslatedRole translatedRole) {
         return this.value < translatedRole.getValue();
     }
 
-    public boolean isGreaterThanOrEqualTo(TranslatedRole translatedRole){
+    public boolean isGreaterThanOrEqualTo(TranslatedRole translatedRole) {
         return this.value >= translatedRole.value;
     }
 
-    public boolean isLessThanOrEqualTo(TranslatedRole translatedRole){
+    public boolean isLessThanOrEqualTo(TranslatedRole translatedRole) {
         return this.value <= translatedRole.value;
     }
 }

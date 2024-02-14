@@ -20,31 +20,31 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class UUIDIntegration implements KFaction{
+public class UUIDIntegration implements KFaction {
 
     @EventHandler
-    public void onFactionCreate(FactionCreateEvent e){
+    public void onFactionCreate(FactionCreateEvent e) {
         Bukkit.getPluginManager().callEvent(new KFactionCreateEvent(e.getFaction().getId()));
     }
 
     @EventHandler
-    public void onFactionDisband(FactionDisbandEvent e){
+    public void onFactionDisband(FactionDisbandEvent e) {
         Bukkit.getPluginManager().callEvent(new KFactionDisbandEvent(e.getFaction().getId(), e.getFaction().getTag()));
     }
 
     @EventHandler
-    public void onLandClaimEvent(LandClaimEvent e){
+    public void onLandClaimEvent(LandClaimEvent e) {
         KLandClaimEvent event = new KLandClaimEvent(e.getFaction().getId(), e.getLocation().getWorldName(), new Integer[]{(int) e.getLocation().getX(), (int) e.getLocation().getZ()}, e.getfPlayer().getPlayer());
         Bukkit.getPluginManager().callEvent(event);
 
-        if(event.isCancelled())e.setCancelled(true);
+        if (event.isCancelled()) e.setCancelled(true);
 
         // Important to check for overclaiming
         Faction factionAt = Board.getInstance().getFactionAt(e.getLocation());
         if (factionAt.isWilderness())
             return;
 
-        KLandUnclaimEvent landUnclaimEvent = new KLandUnclaimEvent(factionAt.getId(), e.getLocation().getWorldName(), new Integer[] {
+        KLandUnclaimEvent landUnclaimEvent = new KLandUnclaimEvent(factionAt.getId(), e.getLocation().getWorldName(), new Integer[]{
                 (int) e.getLocation().getX(),
                 (int) e.getLocation().getZ()
         }, null);
@@ -52,45 +52,45 @@ public class UUIDIntegration implements KFaction{
     }
 
     @EventHandler
-    public void onLandUnclaimEvent(LandUnclaimEvent e){
-        Bukkit.getPluginManager().callEvent(new KLandUnclaimEvent(e.getFaction().getId(), e.getLocation().getWorldName(), new Integer[] {(int) e.getLocation().getX(), (int) e.getLocation().getZ()}, e.getfPlayer().getPlayer()));
+    public void onLandUnclaimEvent(LandUnclaimEvent e) {
+        Bukkit.getPluginManager().callEvent(new KLandUnclaimEvent(e.getFaction().getId(), e.getLocation().getWorldName(), new Integer[]{(int) e.getLocation().getX(), (int) e.getLocation().getZ()}, e.getfPlayer().getPlayer()));
     }
 
     @EventHandler
-    public void onLandUnclaimallEvent(LandUnclaimAllEvent e){
-        Bukkit.getPluginManager().callEvent(new KLandUnclaimallEvent(e.getFaction().getId(), "None", new Integer[] {0, 0}, e.getfPlayer().getPlayer()));
+    public void onLandUnclaimallEvent(LandUnclaimAllEvent e) {
+        Bukkit.getPluginManager().callEvent(new KLandUnclaimallEvent(e.getFaction().getId(), "None", new Integer[]{0, 0}, e.getfPlayer().getPlayer()));
     }
 
     @EventHandler
-    public void onJoin(FPlayerJoinEvent e){
-        switch(e.getReason()){
+    public void onJoin(FPlayerJoinEvent e) {
+        switch (e.getReason()) {
             case CREATE:
                 KPlayerJoinEvent event2 = new KPlayerJoinEvent(e.getFaction().getId(), e.getfPlayer().getId(), KPlayerEvent.Reason.CREATE);
                 Bukkit.getPluginManager().callEvent(event2);
 
-                if(event2.isCancelled())e.setCancelled(true);
+                if (event2.isCancelled()) e.setCancelled(true);
                 break;
             case COMMAND:
                 KPlayerJoinEvent event1 = new KPlayerJoinEvent(e.getFaction().getId(), e.getfPlayer().getId(), KPlayerEvent.Reason.COMMAND);
                 Bukkit.getPluginManager().callEvent(event1);
 
-                if(event1.isCancelled())e.setCancelled(true);
+                if (event1.isCancelled()) e.setCancelled(true);
                 break;
             case LEADER:
                 KPlayerJoinEvent event = new KPlayerJoinEvent(e.getFaction().getId(), e.getfPlayer().getId(), KPlayerEvent.Reason.LEADER);
                 Bukkit.getPluginManager().callEvent(event);
 
-                if(event.isCancelled())e.setCancelled(true);
+                if (event.isCancelled()) e.setCancelled(true);
                 break;
         }
     }
 
     @EventHandler
-    public void onJoin(FPlayerLeaveEvent e){
-        if(e.getFaction().getSize() == 1){
+    public void onJoin(FPlayerLeaveEvent e) {
+        if (e.getFaction().getSize() == 1) {
             Bukkit.getPluginManager().callEvent(new KFactionDisbandEvent(e.getFaction().getId(), e.getFaction().getTag()));
         }
-        switch(e.getReason()){
+        switch (e.getReason()) {
             case DISBAND:
                 Bukkit.getPluginManager().callEvent(new KPlayerLeaveEvent(e.getFaction().getId(), e.getfPlayer().getId(), KPlayerEvent.Reason.DISBAND));
                 break;
@@ -122,8 +122,8 @@ public class UUIDIntegration implements KFaction{
     public UUIDIntegration() throws ClassNotFoundException, NoSuchMethodException, NoSuchFieldException {
         Class<?> permissibleEnum = Class.forName("com.massivecraft.factions.perms.PermissibleAction");
 
-        for(Object object : permissibleEnum.getEnumConstants()){
-            if(object.toString().equals("BUILD")){
+        for (Object object : permissibleEnum.getEnumConstants()) {
+            if (object.toString().equals("BUILD")) {
                 permissibleConstant = object;
                 break;
             }
@@ -137,9 +137,9 @@ public class UUIDIntegration implements KFaction{
 
         setRole = FPlayer.class.getMethod("setRole", roleClass);
 
-        for(Object type : roleClass.getEnumConstants()){
+        for (Object type : roleClass.getEnumConstants()) {
             String toString = ((Enum<?>) type).name();
-            switch(toString.toUpperCase()){
+            switch (toString.toUpperCase()) {
                 case "LEADER":
                 case "ADMIN":
                     leader = type;
@@ -168,7 +168,7 @@ public class UUIDIntegration implements KFaction{
         long limit = getMaxTnt(id);
 
         faction.setTNTBank(0);
-        if(amount > limit){
+        if (amount > limit) {
             faction.setTNTBank((int) limit);
             return;
         }
@@ -182,7 +182,7 @@ public class UUIDIntegration implements KFaction{
 
         long limit = getMaxTnt(id);
 
-        if(amount + totalAmount > limit){
+        if (amount + totalAmount > limit) {
             faction.setTNTBank((int) limit);
             return limit - totalAmount;
         }
@@ -225,11 +225,11 @@ public class UUIDIntegration implements KFaction{
 
     @Override
     public boolean canPlayerBuildThere(Player player, Chunk chunk) {
-        if(isBypassing(player))return true;
+        if (isBypassing(player)) return true;
 
         Faction faction = Board.getInstance().getFactionAt(new FLocation(player.getWorld().getName(), chunk.getX(), chunk.getZ()));
 
-        if(faction.isWilderness())return true;
+        if (faction.isWilderness()) return true;
 
         return getRelationToFaction(player, faction.getId()).isEqualTo(TranslatedRelation.MEMBER);
     }
@@ -247,7 +247,7 @@ public class UUIDIntegration implements KFaction{
 
     @Override
     public boolean playerCanBuildThere(Player player, Location location) {
-        try{
+        try {
             return (boolean) canBuild.invoke(null, player, location, permissibleConstant, true);
         } catch (IllegalAccessException | InvocationTargetException e) {
             return false;
@@ -310,11 +310,11 @@ public class UUIDIntegration implements KFaction{
     public int getStrikes(String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        if(faction == null)return 0;
+        if (faction == null) return 0;
 
         List<StrikeInfo> strikes = faction.getStrikes();
 
-        if(strikes == null)return 0;
+        if (strikes == null) return 0;
 
         return strikes.size();
     }
@@ -345,7 +345,7 @@ public class UUIDIntegration implements KFaction{
     public void setFaction(Player player, String id) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
 
-        if(id == null){
+        if (id == null) {
             fPlayer.leave(false);
             return;
         }
@@ -357,7 +357,7 @@ public class UUIDIntegration implements KFaction{
     public void setFaction(OfflinePlayer player, String id) {
         FPlayer fPlayer = FPlayers.getInstance().getByOfflinePlayer(player);
 
-        if(id == null){
+        if (id == null) {
             fPlayer.leave(false);
             return;
         }
@@ -369,8 +369,8 @@ public class UUIDIntegration implements KFaction{
     public void setRole(Player player, TranslatedRole translatedRole) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
 
-        try{
-            switch(translatedRole.getValue()){
+        try {
+            switch (translatedRole.getValue()) {
                 case 1:
                     setRole.invoke(fPlayer, recruit);
                     break;
@@ -387,7 +387,7 @@ public class UUIDIntegration implements KFaction{
                     setRole.invoke(fPlayer, leader);
                     break;
             }
-        }catch(IllegalAccessException | InvocationTargetException ignored){
+        } catch (IllegalAccessException | InvocationTargetException ignored) {
 
         }
     }
@@ -396,8 +396,8 @@ public class UUIDIntegration implements KFaction{
     public void setRole(OfflinePlayer offlinePlayer, TranslatedRole translatedRole) {
         FPlayer fPlayer = FPlayers.getInstance().getByOfflinePlayer(offlinePlayer);
 
-        try{
-            switch(translatedRole.getValue()){
+        try {
+            switch (translatedRole.getValue()) {
                 case 1:
                     setRole.invoke(fPlayer, recruit);
                     break;
@@ -414,7 +414,7 @@ public class UUIDIntegration implements KFaction{
                     setRole.invoke(fPlayer, leader);
                     break;
             }
-        }catch(IllegalAccessException | InvocationTargetException exc){
+        } catch (IllegalAccessException | InvocationTargetException exc) {
             // Failed to set role, print some information about it
             exc.printStackTrace();
         }
@@ -426,7 +426,7 @@ public class UUIDIntegration implements KFaction{
 
         Relation rel = null;
 
-        switch(relation){
+        switch (relation) {
             case MEMBER:
                 rel = Relation.MEMBER;
                 break;
@@ -477,8 +477,8 @@ public class UUIDIntegration implements KFaction{
     public void clearAllClaimsInWorld(String world) {
         World world1 = Bukkit.getWorld(world);
 
-        for(Faction faction : Factions.getInstance().getAllFactions()){
-            if(faction.isWilderness() || faction.isWarZone() || faction.isSafeZone())continue;
+        for (Faction faction : Factions.getInstance().getAllFactions()) {
+            if (faction.isWilderness() || faction.isWarZone() || faction.isSafeZone()) continue;
             Board.getInstance().unclaimAllInWorld(faction.getId(), world1);
         }
     }
@@ -494,7 +494,7 @@ public class UUIDIntegration implements KFaction{
 
         Set<String> toReturn = new HashSet<>(allFactions.size());
 
-        for(Faction faction : allFactions){
+        for (Faction faction : allFactions) {
             toReturn.add(faction.getId());
         }
         return toReturn;
@@ -504,7 +504,7 @@ public class UUIDIntegration implements KFaction{
     public Map<String, Set<Integer[]>> getAllClaims(String id) {
         Map<String, Set<Integer[]>> toReturn = new HashMap<>();
 
-        for(FLocation fLocation : Board.getInstance().getAllClaims(id)){
+        for (FLocation fLocation : Board.getInstance().getAllClaims(id)) {
             toReturn.putIfAbsent(fLocation.getWorldName(), new HashSet<>());
 
             toReturn.get(fLocation.getWorldName()).add(new Integer[]{
@@ -515,7 +515,7 @@ public class UUIDIntegration implements KFaction{
     }
 
     @Override
-    public Inventory getChestInventory(Player player, String id){
+    public Inventory getChestInventory(Player player, String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
         return faction.getChest();
@@ -553,17 +553,17 @@ public class UUIDIntegration implements KFaction{
 
     @Override
     public String getTagFromId(String id) {
-        if(id == null)return "None";
-        if(!Factions.getInstance().isValidFactionId(id))return "None";
+        if (id == null) return "None";
+        if (!Factions.getInstance().isValidFactionId(id)) return "None";
         Faction factionById = Factions.getInstance().getFactionById(id);
-        if(factionById == null)return "None";
+        if (factionById == null) return "None";
         return factionById.getTag();
     }
 
     @Override
     public String getIdFromTag(String tag) {
         Faction byTag = Factions.getInstance().getByTag(tag);
-        if(byTag == null)return null;
+        if (byTag == null) return null;
         return byTag.getId();
     }
 
@@ -575,7 +575,7 @@ public class UUIDIntegration implements KFaction{
     @Override
     public String getRolePrefix(TranslatedRole translatedRole) {
         String toReturn = "";
-        switch(translatedRole.getValue()){
+        switch (translatedRole.getValue()) {
             case 1:
                 toReturn = FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getRecruit();
                 break;
@@ -599,12 +599,12 @@ public class UUIDIntegration implements KFaction{
     public List<Player> getOnlineMembers(String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        if(faction == null)return new ArrayList<>();
+        if (faction == null) return new ArrayList<>();
 
         List<Player> players = new ArrayList<>();
 
-        for(FPlayer fPlayer : faction.getFPlayersWhereOnline(true)){
-            if(!fPlayer.getRole().isAtLeast(Role.RECRUIT))continue;
+        for (FPlayer fPlayer : faction.getFPlayersWhereOnline(true)) {
+            if (!fPlayer.getRole().isAtLeast(Role.RECRUIT)) continue;
             players.add(Bukkit.getPlayer(UUID.fromString(fPlayer.getId())));
         }
         return players;
@@ -614,7 +614,7 @@ public class UUIDIntegration implements KFaction{
     public UUID getLeader(String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        if(faction == null)return null;
+        if (faction == null) return null;
 
         String uuid = faction.getFPlayerAdmin().getId();
 
@@ -625,11 +625,11 @@ public class UUIDIntegration implements KFaction{
     public OfflinePlayer getOfflineLeader(String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        if(faction == null)return null;
+        if (faction == null) return null;
 
         FPlayer fPlayerAdmin = faction.getFPlayerAdmin();
 
-        if(fPlayerAdmin == null)return null;
+        if (fPlayerAdmin == null) return null;
 
         String uuid = fPlayerAdmin.getId();
 
@@ -644,15 +644,15 @@ public class UUIDIntegration implements KFaction{
 
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        if(faction == null)return offliners;
+        if (faction == null) return offliners;
 
         faction.getFPlayers().forEach(z -> {
-            if(!z.getRole().isAtLeast(Role.RECRUIT))return;
-            if(z.getPlayer() == null){
+            if (!z.getRole().isAtLeast(Role.RECRUIT)) return;
+            if (z.getPlayer() == null) {
                 offliners.add(Bukkit.getOfflinePlayer(UUID.fromString(z.getId())));
                 return;
             }
-            if(!z.getPlayer().isOnline())offliners.add(Bukkit.getOfflinePlayer(UUID.fromString(z.getId())));
+            if (!z.getPlayer().isOnline()) offliners.add(Bukkit.getOfflinePlayer(UUID.fromString(z.getId())));
         });
 
         return offliners;
@@ -688,9 +688,9 @@ public class UUIDIntegration implements KFaction{
     public TranslatedRelation getRelationToFaction(Player player, String id) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
         Faction faction = Factions.getInstance().getFactionById(id);
-        try{
-            return TranslatedRelation.valueOf(((Enum<?>)relationTo.invoke(fPlayer, faction)).name().toUpperCase());
-        }catch(IllegalAccessException | InvocationTargetException e){
+        try {
+            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(fPlayer, faction)).name().toUpperCase());
+        } catch (IllegalAccessException | InvocationTargetException e) {
             return TranslatedRelation.ENEMY;
         }
     }
@@ -698,9 +698,9 @@ public class UUIDIntegration implements KFaction{
     @Override
     public TranslatedRole getRole(Player player) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-        try{
+        try {
             return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        }catch(InvocationTargetException | IllegalAccessException e){
+        } catch (InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return TranslatedRole.RECRUIT;
@@ -709,9 +709,9 @@ public class UUIDIntegration implements KFaction{
     @Override
     public TranslatedRole getRole(OfflinePlayer player) {
         FPlayer fPlayer = FPlayers.getInstance().getByOfflinePlayer(player);
-        try{
+        try {
             return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        }catch(InvocationTargetException | IllegalAccessException e){
+        } catch (InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return TranslatedRole.RECRUIT;
@@ -720,9 +720,9 @@ public class UUIDIntegration implements KFaction{
     @Override
     public TranslatedRole getRole(UUID uuid) {
         FPlayer fPlayer = FPlayers.getInstance().getById(uuid.toString());
-        try{
+        try {
             return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        }catch(InvocationTargetException | IllegalAccessException e){
+        } catch (InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return TranslatedRole.RECRUIT;
@@ -732,10 +732,10 @@ public class UUIDIntegration implements KFaction{
     public TranslatedRelation getFactionRelationToFaction(String id1, String id2) {
         Faction faction1 = Factions.getInstance().getFactionById(id1);
         Faction faction2 = Factions.getInstance().getFactionById(id2);
-        if(faction1 == null || faction2 == null)return TranslatedRelation.ENEMY;
-        try{
-            return TranslatedRelation.valueOf(((Enum<?>)relationTo.invoke(faction1, faction2)).name().toUpperCase());
-        } catch (IllegalAccessException | InvocationTargetException e){
+        if (faction1 == null || faction2 == null) return TranslatedRelation.ENEMY;
+        try {
+            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(faction1, faction2)).name().toUpperCase());
+        } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
         return TranslatedRelation.ENEMY;
@@ -745,8 +745,8 @@ public class UUIDIntegration implements KFaction{
     public TranslatedRelation getRelationToPlayer(Player player, Player player2) {
         FPlayer fPlayer1 = FPlayers.getInstance().getByPlayer(player);
         FPlayer fPlayer2 = FPlayers.getInstance().getByPlayer(player2);
-        try{
-            return TranslatedRelation.valueOf(((Enum<?>)relationTo.invoke(fPlayer1, fPlayer2)).name().toUpperCase());
+        try {
+            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(fPlayer1, fPlayer2)).name().toUpperCase());
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
@@ -764,19 +764,7 @@ public class UUIDIntegration implements KFaction{
     public void onPowerLoss(PowerLossEvent e) {
         KPowerLossEvent event = new KPowerLossEvent(e.getfPlayer().getPlayer());
         Bukkit.getPluginManager().callEvent(event);
-        if(event.isCancelled())e.setCancelled(true);
-    }
-
-    @Override
-    public List<UUID> getAllMembers(String id) {
-        List<UUID> all = new ArrayList<>();
-        for (Player p : getOnlineMembers(id)) {
-            all.add(p.getUniqueId());
-        }
-        for (OfflinePlayer p : getOfflineMembers(id)) {
-            all.add(p.getUniqueId());
-        }
-        return all;
+        if (event.isCancelled()) e.setCancelled(true);
     }
 
     @Override

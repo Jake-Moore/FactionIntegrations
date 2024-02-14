@@ -841,25 +841,13 @@ public class JartexIntegration implements KFaction {
     public void onPowerLoss(PowerLossEvent e) {
         KPowerLossEvent event = new KPowerLossEvent(e.getfPlayer().getPlayer());
         Bukkit.getPluginManager().callEvent(event);
-        if(event.isCancelled())e.setCancelled(true);
+        if (event.isCancelled()) e.setCancelled(true);
     }
 
     public boolean hasPermission(String factionId, UUID playerUUID, String permission) {
         Faction faction = Factions.getInstance().getFactionById(factionId);
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(Bukkit.getPlayer(playerUUID));
         return FactionsAPI.getInstance().getPermissionManager().hasPermission(faction, fPlayer, PTNormal.valueOf(permission));
-    }
-
-    @Override
-    public List<UUID> getAllMembers(String id) {
-        List<UUID> all = new ArrayList<>();
-        for (Player p : getOnlineMembers(id)) {
-            all.add(p.getUniqueId());
-        }
-        for (OfflinePlayer p : getOfflineMembers(id)) {
-            all.add(p.getUniqueId());
-        }
-        return all;
     }
 
     public void addMoney(String factionId, double amount) {

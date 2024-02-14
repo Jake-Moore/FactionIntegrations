@@ -14,29 +14,30 @@ public enum TranslatedRelation {
 
     private final int value;
     private final ChatColor relationColor;
-    TranslatedRelation(int value, ChatColor chatColor){
+
+    TranslatedRelation(int value, ChatColor chatColor) {
         this.value = value;
         this.relationColor = chatColor;
     }
 
-    public int getValue(){
+    public int getValue() {
         return this.value;
     }
 
-    public ChatColor getRelationColor(){
-        if(!FactionIntegrations.getIntegration().isRelationColorsEnabled())return null;
+    public ChatColor getRelationColor() {
+        if (!FactionIntegrations.getIntegration().isRelationColorsEnabled()) return null;
         return this.relationColor;
     }
 
-    public boolean isGreaterThan(TranslatedRelation translatedRelation){
+    public boolean isGreaterThan(TranslatedRelation translatedRelation) {
         return this.value > translatedRelation.getValue();
     }
 
-    public boolean isEqualTo(TranslatedRelation translatedRelation){
+    public boolean isEqualTo(TranslatedRelation translatedRelation) {
         return this.value == translatedRelation.getValue();
     }
 
-    public boolean isLessThan(TranslatedRelation translatedRelation){
+    public boolean isLessThan(TranslatedRelation translatedRelation) {
         return this.value < translatedRelation.getValue();
     }
 }

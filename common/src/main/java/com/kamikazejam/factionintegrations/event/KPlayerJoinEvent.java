@@ -20,6 +20,7 @@ public class KPlayerJoinEvent extends KPlayerEvent implements Cancellable {
     private static final HandlerList handlerList = new HandlerList();
 
     private boolean cancelled;
+
     @Override
     public boolean isCancelled() {
         return cancelled;

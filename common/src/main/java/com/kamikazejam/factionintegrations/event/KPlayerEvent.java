@@ -5,7 +5,7 @@ public abstract class KPlayerEvent extends KFactionEvent {
 
     private final Reason reason;
 
-    public KPlayerEvent(String faction, String playerID, Reason reason){
+    public KPlayerEvent(String faction, String playerID, Reason reason) {
         super(faction);
         this.playerID = playerID;
         this.reason = reason;
