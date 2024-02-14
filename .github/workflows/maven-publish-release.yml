@@ -41,10 +41,13 @@ jobs:
         run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
         id: project
 
+      - name: Rename Artifact
+        run: mv dist/target/FactionIntegrations-${{ steps.project.outputs.version }}-Source.jar dist/target/FactionIntegrations-${{ steps.project.outputs.version }}.jar
+
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "dist/target/FactionIntegrations-${{ steps.project.outputs.version }}-Source.jar"
+          artifacts: "dist/target/FactionIntegrations-${{ steps.project.outputs.version }}.jar"
           allowUpdates: true
           removeArtifacts: true
           omitBodyDuringUpdate: true
