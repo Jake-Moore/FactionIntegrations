@@ -1,6 +1,0 @@
-JartexFactions:
-  GENERIC_ARGS_TOOFEW: "&cToo few arguments. &eUse like this:"
-  GENERIC_ARGS_TOOMANY: "&cStrange argument \"&3%1$s&c\". &eUse the command like this:"
-  GENERIC_NOFACTIONMATCH: "&cNo faction match found for \"&3%1$s&c\"."
-  COMMAND_SHOW_NOFACTION_SELF: "&cYou are not in a faction"
-  COMMAND_NO_PERM: "&c&l(!) &cYou are not allowed to perform this command."
