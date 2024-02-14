@@ -681,16 +681,11 @@ public class JartexIntegration implements KFaction {
     }
 
     @Override
-    public Player getLeader(String id) {
+    public UUID getLeader(String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
-
         if (faction == null) return null;
 
-        String uuid = faction.getFPlayerAdmin().getAccountId();
-
-        UUID id1 = UUID.fromString(uuid);
-
-        return Bukkit.getPlayer(id1);
+        return UUID.fromString(faction.getFPlayerAdmin().getAccountId());
     }
 
     @Override
@@ -953,5 +948,35 @@ public class JartexIntegration implements KFaction {
         if (faction == null) return 0;
         MemoryFaction memoryFaction = (MemoryFaction) faction;
         return memoryFaction.getExp();
+    }
+
+    @Override
+    public void setOpen(String factionId, boolean open) {
+        Factions.getInstance().getFactionById(factionId).setOpen(open);
+    }
+
+    @Override
+    public void setPermanent(String factionId, boolean permanent) {
+        Factions.getInstance().getFactionById(factionId).setPermanent(permanent);
+    }
+
+    @Override
+    public String getDescription(String factionId) {
+        return Factions.getInstance().getFactionById(factionId).getDescription();
+    }
+
+    @Override
+    public void setDescription(String factionId, String description) {
+        Factions.getInstance().getFactionById(factionId).setDescription(description);
+    }
+
+    @Override
+    public String getWarzone() {
+        return Factions.getInstance().getWarZone().getId();
+    }
+
+    @Override
+    public String getSafezone() {
+        return Factions.getInstance().getSafeZone().getId();
     }
 }

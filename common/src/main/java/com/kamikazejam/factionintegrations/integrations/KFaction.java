@@ -139,7 +139,9 @@ public interface KFaction extends Listener {
 
     List<OfflinePlayer> getOfflineMembers(String id);
 
-    Player getLeader(String id);
+    List<UUID> getAllMembers(String id);
+
+    UUID getLeader(String id);
 
     OfflinePlayer getOfflineLeader(String id);
 
@@ -166,4 +168,16 @@ public interface KFaction extends Listener {
     TranslatedRelation getFactionRelationToFaction(String id1, String id2);
 
     TranslatedRelation getRelationToPlayer(Player player, Player player2);
+
+    void setOpen(String factionId, boolean open);
+
+    void setPermanent(String factionId, boolean permanent);
+
+    String getDescription(String factionId);
+
+    void setDescription(String factionId, String description);
+
+    String getWarzone();
+
+    String getSafezone();
 }

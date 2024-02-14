@@ -1,35 +1,30 @@
 package com.kamikazejam.factionintegrations.integrations;
 
-import com.kamikazejam.factionintegrations.FactionIntegrations;
 import com.kamikazejam.factionintegrations.event.*;
 import com.kamikazejam.factionintegrations.object.TranslatedRelation;
 import com.kamikazejam.factionintegrations.object.TranslatedRole;
-import com.kamikazejam.factionintegrations.shield.ShieldIntegration;
 import com.massivecraft.factions.*;
 import com.massivecraft.factions.event.*;
 import com.massivecraft.factions.iface.RelationParticipator;
+import com.massivecraft.factions.integration.Econ;
+import com.massivecraft.factions.perms.PermissibleAction;
+import com.massivecraft.factions.perms.Relation;
+import com.massivecraft.factions.perms.Role;
+import com.massivecraft.factions.util.StrikeInfo;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-//AL56AF50
-public class AtlasIntegration implements KFaction, ShieldIntegration {
+public class UUIDIntegration implements KFaction{
 
     @EventHandler
     public void onFactionCreate(FactionCreateEvent e){
-        new BukkitRunnable(){
-            @Override
-            public void run() {
-                Bukkit.getPluginManager().callEvent(new KFactionCreateEvent(getTagFromId(e.getFactionTag())));
-            }
-        }.runTaskLater(FactionIntegrations.get(), 1);
+        Bukkit.getPluginManager().callEvent(new KFactionCreateEvent(e.getFaction().getId()));
     }
 
     @EventHandler
@@ -43,16 +38,27 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
         Bukkit.getPluginManager().callEvent(event);
 
         if(event.isCancelled())e.setCancelled(true);
+
+        // Important to check for overclaiming
+        Faction factionAt = Board.getInstance().getFactionAt(e.getLocation());
+        if (factionAt.isWilderness())
+            return;
+
+        KLandUnclaimEvent landUnclaimEvent = new KLandUnclaimEvent(factionAt.getId(), e.getLocation().getWorldName(), new Integer[] {
+                (int) e.getLocation().getX(),
+                (int) e.getLocation().getZ()
+        }, null);
+        Bukkit.getPluginManager().callEvent(landUnclaimEvent);
     }
 
     @EventHandler
     public void onLandUnclaimEvent(LandUnclaimEvent e){
-        Bukkit.getPluginManager().callEvent(new KLandUnclaimEvent(e.getFaction().getId(), e.getLocation().getWorldName(), new Integer[]{(int) e.getLocation().getX(), (int) e.getLocation().getZ()}, e.getfPlayer().getPlayer()));
+        Bukkit.getPluginManager().callEvent(new KLandUnclaimEvent(e.getFaction().getId(), e.getLocation().getWorldName(), new Integer[] {(int) e.getLocation().getX(), (int) e.getLocation().getZ()}, e.getfPlayer().getPlayer()));
     }
 
     @EventHandler
     public void onLandUnclaimallEvent(LandUnclaimAllEvent e){
-        Bukkit.getPluginManager().callEvent(new KLandUnclaimallEvent(e.getFaction().getId(), "None", new Integer[]{0, 0}, e.getfPlayer().getPlayer()));
+        Bukkit.getPluginManager().callEvent(new KLandUnclaimallEvent(e.getFaction().getId(), "None", new Integer[] {0, 0}, e.getfPlayer().getPlayer()));
     }
 
     @EventHandler
@@ -84,7 +90,6 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
         if(e.getFaction().getSize() == 1){
             Bukkit.getPluginManager().callEvent(new KFactionDisbandEvent(e.getFaction().getId(), e.getFaction().getTag()));
         }
-
         switch(e.getReason()){
             case DISBAND:
                 Bukkit.getPluginManager().callEvent(new KPlayerLeaveEvent(e.getFaction().getId(), e.getfPlayer().getId(), KPlayerEvent.Reason.DISBAND));
@@ -104,105 +109,37 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
         }
     }
 
-    private Method add;
-    private Method take;
-    private Method getBalance;
+    private Method canBuild;
 
     private Method getRole;
 
-    private Method getOnlinePlayers;
+    private Object permissibleConstant;
 
-    private Method relationTo;
-
-    private Method canBuild;
-
-    private Method chestInventory;
-
-    private Method getStrikes, setRole;
+    private Method relationTo, setRole;
 
     private Object leader, coleader, moderator, normal, recruit;
 
-    private Field leaderP, coleaderP, moderatorP, normalP, recruitP, maxMembersField;
+    public UUIDIntegration() throws ClassNotFoundException, NoSuchMethodException, NoSuchFieldException {
+        Class<?> permissibleEnum = Class.forName("com.massivecraft.factions.perms.PermissibleAction");
 
-    private Method setFaction;
-
-    private Method isInsideBaseRegion;
-
-    private Method isShieldActive;
-
-    private Field econEnabled;
-
-    private Method getUpgrade;
-
-    private Method getExpansion;
-
-    private Object tntUpgrade;
-
-    private Method getPrefix, getByValue;
-
-    private Method getMoneyBalance, depositMoney, withdrawMoney;
-
-    private Method leaveFaction;
-
-    public AtlasIntegration() throws ClassNotFoundException, NoSuchMethodException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
-        Class<?> factionClass = Class.forName("com.massivecraft.factions.Faction");
-
-        Class<?> fplayerClass = Class.forName("com.massivecraft.factions.FPlayer");
-
-        isShieldActive = factionClass.getDeclaredMethod("isShieldActive");
-
-        isInsideBaseRegion = factionClass.getMethod("isInsideBaseRegion", FLocation.class);
-
-        setFaction = fplayerClass.getMethod("setFaction", Faction.class, boolean.class);
-
-        leaveFaction = fplayerClass.getMethod("leave");
-
-        add = factionClass.getMethod("depositTNT", long.class);
-
-        getMoneyBalance = Faction.class.getDeclaredMethod("getBalance");
-
-        depositMoney = Faction.class.getDeclaredMethod("depositMoney", double.class);
-
-        withdrawMoney = Faction.class.getDeclaredMethod("withdrawMoney", double.class);
-
-        chestInventory = factionClass.getMethod("getChestInventory");
-
-        take = factionClass.getMethod("withdrawTNT", long.class);
-
-        getBalance = factionClass.getMethod("getTNT");
-
-        getStrikes = factionClass.getMethod("getStrikes");
-
-        getRole = FPlayer.class.getMethod("getRole");
-
-        relationTo = RelationParticipator.class.getMethod("getRelationTo", RelationParticipator.class);
-
-        Class<?> roleClass = Class.forName("com.massivecraft.factions.struct.Role");
-
-        getPrefix = roleClass.getMethod("getPrefix");
-
-        getByValue = roleClass.getDeclaredMethod("getByValue", int.class);
-
-        setRole = FPlayer.class.getMethod("setRole", roleClass);
-
-        Class<?> upgradeClass = Class.forName("com.massivecraft.factions.upgrades.FactionUpgrade");
-
-        Class<?> aClass = Class.forName("com.massivecraft.factions.upgrades.UpgradeType");
-        getUpgrade = Faction.class.getMethod("getUpgrade", aClass);
-
-        getExpansion = upgradeClass.getMethod("getExpansion");
-
-        for (Object type : aClass.getEnumConstants()) {
-            String toString = ((Enum<?>) type).name();
-            if ("TNT_STORAGE".equalsIgnoreCase(toString)) {
-                tntUpgrade = type;
+        for(Object object : permissibleEnum.getEnumConstants()){
+            if(object.toString().equals("BUILD")){
+                permissibleConstant = object;
                 break;
             }
         }
 
-        for (Object type : roleClass.getEnumConstants()) {
+        relationTo = RelationParticipator.class.getMethod("getRelationTo", RelationParticipator.class);
+
+        getRole = FPlayer.class.getMethod("getRole");
+
+        Class<?> roleClass = Class.forName("com.massivecraft.factions.perms.Role");
+
+        setRole = FPlayer.class.getMethod("setRole", roleClass);
+
+        for(Object type : roleClass.getEnumConstants()){
             String toString = ((Enum<?>) type).name();
-            switch (toString.toUpperCase()) {
+            switch(toString.toUpperCase()){
                 case "LEADER":
                 case "ADMIN":
                     leader = type;
@@ -218,163 +155,72 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
                     break;
                 case "RECRUIT":
                     recruit = type;
+                    break;
             }
         }
 
-        Class<?> confClass = Class.forName("com.massivecraft.factions.Conf");
-
-        maxMembersField = confClass.getField("factionMemberLimit");
-
-        leaderP = confClass.getField("prefixLeader");
-        coleaderP = confClass.getField("prefixCoLeader");
-        moderatorP = confClass.getField("prefixMod");
-        normalP = confClass.getField("prefixNormal");
-        recruitP = confClass.getField("prefixRecruit");
-
-        getOnlinePlayers = Faction.class.getMethod("getOnlinePlayers");
-
-        canBuild = Class.forName("com.massivecraft.factions.listeners.FactionsBlockListener").getMethod("playerCanBuildDestroyBlock", Player.class, Location.class, String.class, boolean.class);
-        Class<?> permissableClass = Class.forName("com.massivecraft.factions.perms.Permissable");
-        Class<?> accessClass = Class.forName("com.massivecraft.factions.perms.Access");
-
-        Class<?> relationClass = Class.forName("com.massivecraft.factions.struct.Relation");
-
-        valueOfRelation = relationClass.getMethod("valueOf", String.class);
-
-        allowObject = accessClass.getMethod("valueOf", String.class).invoke(null, "ALLOW");
-
-        Class<?> permissableActionClass = Class.forName("com.massivecraft.factions.perms.PermissableAction");
-
-        valueOf = permissableActionClass.getMethod("valueOf", String.class);
-
-        setPermission = Faction.class.getMethod("setPermission", permissableClass, permissableActionClass, accessClass);
-
-        setRelationWish = Faction.class.getMethod("setRelationWish", Faction.class, relationClass);
-    }
-
-    private Object allowObject;
-
-    private Method valueOf;
-
-    private Method valueOfRelation;
-
-    private Method setPermission;
-
-    private Method setRelationWish;
-
-    @Override
-    public void setTnT(String id, long amountL) {
-        try{
-            int amount = (int) amountL;
-            Faction faction = Factions.getInstance().getFactionById(id);
-
-            int limit = (int) getMaxTnt(id);
-
-            take.invoke(faction, getBalance.invoke(faction));
-            if(amount > limit){
-                add.invoke(faction, limit);
-                return;
-            }
-            add.invoke(faction, amount);
-        }catch(IllegalAccessException | InvocationTargetException e){
-            Bukkit.getLogger().severe("Error setting tnt bank balance!");
-        }
+        canBuild = Class.forName("com.massivecraft.factions.listeners.FactionsBlockListener").getMethod("playerCanBuildDestroyBlock", Player.class, Location.class, permissibleEnum, boolean.class);
     }
 
     @Override
-    public long addTnT(String id, long amountL) {
-        try{
-            int amount = (int) amountL;
-            Faction faction = Factions.getInstance().getFactionById(id);
-            int totalAmount = ((Long) getBalance.invoke(faction)).intValue();
+    public void setTnT(String id, long amount) {
+        Faction faction = Factions.getInstance().getFactionById(id);
+        long limit = getMaxTnt(id);
 
-            int limit = (int) getMaxTnt(id);
-
-            if(amount + totalAmount > limit){
-                add.invoke(faction, limit - totalAmount);
-                return limit - totalAmount;
-            }
-            add.invoke(faction, amount);
-            return amount;
-        }catch(IllegalAccessException | InvocationTargetException e){
-            Bukkit.getLogger().severe("Error setting tnt bank balance!");
+        faction.setTNTBank(0);
+        if(amount > limit){
+            faction.setTNTBank((int) limit);
+            return;
         }
-        return 0;
+        faction.setTNTBank((int) amount);
+    }
+
+    @Override
+    public long addTnT(String id, long amount) {
+        Faction faction = Factions.getInstance().getFactionById(id);
+        int totalAmount = faction.getTNTBank();
+
+        long limit = getMaxTnt(id);
+
+        if(amount + totalAmount > limit){
+            faction.setTNTBank((int) limit);
+            return limit - totalAmount;
+        }
+        faction.setTNTBank((int) amount + totalAmount);
+        return amount;
     }
 
     @Override
     public long getTnT(String id) {
-        try{
-            Faction faction = Factions.getInstance().getFactionById(id);
-            return ((Long) getBalance.invoke(faction)).intValue();
-        }catch(IllegalAccessException | InvocationTargetException e){
-            Bukkit.getLogger().severe("Error getting tnt bank balance!");
-        }
-        return 0;
+        return Factions.getInstance().getFactionById(id).getTNTBank();
     }
 
     @Override
     public long getMaxTnt(String id) {
-        try {
-            Object upgrade = getUpgrade.invoke(Factions.getInstance().getFactionById(id), tntUpgrade);
-            return (int) getExpansion.invoke(upgrade);
-        }catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
-    @Override
-    public int getStrikes(String id){
-        try{
-            Faction faction = Factions.getInstance().getFactionById(id);
-
-            if(faction == null)return 0;
-
-            return ((Set<?>) getStrikes.invoke(faction)).size();
-        } catch (IllegalAccessException | InvocationTargetException | NullPointerException ignored) {
-
-        }
-        return 0;
+        int maxTNT = Factions.getInstance().getFactionById(id).getMaxTNT();
+        return maxTNT <= 0 ? Integer.MAX_VALUE : maxTNT;
     }
 
     @Override
     public double getBalance(String id) {
-        Faction faction = Factions.getInstance().getFactionById(id);
-
-        try{
-            return (double) getMoneyBalance.invoke(faction);
-        }catch(InvocationTargetException | IllegalAccessException ignored){
-
-        }
-        return 0.0D;
+        return Econ.getBalance(Factions.getInstance().getFactionById(id));
     }
 
     @Override
     public void addBalance(String id, double add) {
         Faction faction = Factions.getInstance().getFactionById(id);
-
-        try{
-            depositMoney.invoke(faction, add);
-        }catch(InvocationTargetException | IllegalAccessException ignored){
-
-        }
+        Econ.deposit(faction, add);
     }
 
     @Override
     public void subtractBalance(String id, double remove) {
         Faction faction = Factions.getInstance().getFactionById(id);
-
-        try{
-            withdrawMoney.invoke(faction, remove);
-        }catch(InvocationTargetException | IllegalAccessException ignored){
-
-        }
+        Econ.withdraw(faction, remove);
     }
 
     @Override
-    public boolean econEnabled(){
-        return true;
+    public boolean econEnabled() {
+        return FactionsPlugin.getInstance().getConfigManager().getMainConfig().economy().isEnabled();
     }
 
     @Override
@@ -390,16 +236,7 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
 
     @Override
     public boolean isBaseRegion(Location location, String id) {
-        FLocation fLocation = new FLocation(location);
-        Faction faction = Board.getInstance().getFactionAt(fLocation);
-        if (!id.equalsIgnoreCase(faction.getId()))
-            return false;
-        try {
-            return (Boolean) this.isInsideBaseRegion.invoke(faction, fLocation);
-        } catch (InvocationTargetException|IllegalAccessException e) {
-            Bukkit.getConsoleSender().sendMessage("Error getting base region!");
-            return false;
-        }
+        return false;
     }
 
     @Override
@@ -411,8 +248,8 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     @Override
     public boolean playerCanBuildThere(Player player, Location location) {
         try{
-            return (boolean) canBuild.invoke(null, player, location, "build", true);
-        }catch(IllegalAccessException | InvocationTargetException e){
+            return (boolean) canBuild.invoke(null, player, location, permissibleConstant, true);
+        } catch (IllegalAccessException | InvocationTargetException e) {
             return false;
         }
     }
@@ -434,7 +271,9 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
 
     @Override
     public boolean playerCanFlyThere(Player player, Location location) {
-        return false;
+        FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
+        FLocation fLocation = new FLocation(location);
+        return fPlayer.canFlyAtLocation(fLocation);
     }
 
     @Override
@@ -450,13 +289,6 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
 
     @Override
     public boolean isShieldActiveNow(String id) {
-        Faction faction = Factions.getInstance().getFactionById(id);
-
-        try {
-            return (boolean) isShieldActive.invoke(faction);
-        }catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
         return false;
     }
 
@@ -475,35 +307,33 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     }
 
     @Override
-    public int getMaxPlayers(String id) {
-        try{
-            return (int) maxMembersField.get(null);
-        }catch (IllegalAccessException ignored){
+    public int getStrikes(String id) {
+        Faction faction = Factions.getInstance().getFactionById(id);
 
-        }
-        return 0;
+        if(faction == null)return 0;
+
+        List<StrikeInfo> strikes = faction.getStrikes();
+
+        if(strikes == null)return 0;
+
+        return strikes.size();
+    }
+
+    @Override
+    public int getMaxPlayers(String id) {
+        return FactionsPlugin.getInstance().conf().factions().other().getFactionMemberLimit();
     }
 
     @Override
     public int getSize(String id) {
-        Faction factionById = Factions.getInstance().getFactionById(id);
-
-        if(factionById == null)return 0;
-        if(factionById.getFPlayers() == null)return 0;
-
-        return factionById.getFPlayers().size();
+        return Factions.getInstance().getFactionById(id).getSize();
     }
 
     @Override
     public boolean isInFactionChest(Player player, String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        try{
-            return ((Inventory) chestInventory.invoke(faction)).getViewers().contains(player);
-        } catch (IllegalAccessException | InvocationTargetException ignored) {
-
-        }
-        return false;
+        return faction.getChest().getViewers().contains(player);
     }
 
     @Override
@@ -516,19 +346,11 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
 
         if(id == null){
-            try{
-                leaveFaction.invoke(fPlayer);
-            } catch (InvocationTargetException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
+            fPlayer.leave(false);
             return;
         }
 
-        try{
-            setFaction.invoke(fPlayer, Factions.getInstance().getFactionById(id), false);
-        }catch(IllegalAccessException | InvocationTargetException ignored){
-
-        }
+        fPlayer.setFaction(Factions.getInstance().getFactionById(id));
     }
 
     @Override
@@ -536,19 +358,11 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
         FPlayer fPlayer = FPlayers.getInstance().getByOfflinePlayer(player);
 
         if(id == null){
-            try{
-                leaveFaction.invoke(fPlayer);
-            } catch (InvocationTargetException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
+            fPlayer.leave(false);
             return;
         }
 
-        try{
-            setFaction.invoke(fPlayer, Factions.getInstance().getFactionById(id), false);
-        }catch(IllegalAccessException | InvocationTargetException ignored){
-
-        }
+        fPlayer.setFaction(Factions.getInstance().getFactionById(id));
     }
 
     @Override
@@ -600,8 +414,9 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
                     setRole.invoke(fPlayer, leader);
                     break;
             }
-        }catch(IllegalAccessException | InvocationTargetException ignored){
-
+        }catch(IllegalAccessException | InvocationTargetException exc){
+            // Failed to set role, print some information about it
+            exc.printStackTrace();
         }
     }
 
@@ -609,62 +424,33 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public void setPermission(String id, TranslatedRelation relation, String permission, boolean b) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        try{
-            Object rel = null;
+        Relation rel = null;
 
-            switch(relation){
-                case MEMBER:
-                    rel = valueOfRelation.invoke(null, "MEMBER");
-                    break;
-                case ENEMY:
-                    rel = valueOfRelation.invoke(null, "ENEMY");
-                    break;
-                case NEUTRAL:
-                    rel = valueOfRelation.invoke(null, "NEUTRAL");
-                    break;
-                case ALLY:
-                    rel = valueOfRelation.invoke(null, "ALLY");
-                    break;
-                case TRUCE:
-                    rel = valueOfRelation.invoke(null, "TRUCE");
-            }
-
-            setPermission.invoke(faction, rel, valueOf.invoke(null, permission), allowObject);
-        }catch(Exception ignored){
-
+        switch(relation){
+            case MEMBER:
+                rel = Relation.MEMBER;
+                break;
+            case ENEMY:
+                rel = Relation.ENEMY;
+                break;
+            case NEUTRAL:
+                rel = Relation.NEUTRAL;
+                break;
+            case ALLY:
+                rel = Relation.ALLY;
+                break;
+            case TRUCE:
+                rel = Relation.TRUCE;
         }
+
+        faction.setPermission(b, rel, PermissibleAction.valueOf(permission), true);
     }
 
     @Override
     public void setRelationWish(String id, String other, TranslatedRelation relation) {
-        Faction a = Factions.getInstance().getFactionById(id);
+        Faction faction = Factions.getInstance().getFactionById(id);
 
-        Faction b = Factions.getInstance().getFactionById(other);
-
-        try{
-            Object rel = null;
-
-            switch(relation){
-                case MEMBER:
-                    rel = valueOfRelation.invoke(null, "MEMBER");
-                    break;
-                case ENEMY:
-                    rel = valueOfRelation.invoke(null, "ENEMY");
-                    break;
-                case NEUTRAL:
-                    rel = valueOfRelation.invoke(null, "NEUTRAL");
-                    break;
-                case ALLY:
-                    rel = valueOfRelation.invoke(null, "ALLY");
-                    break;
-                case TRUCE:
-                    rel = valueOfRelation.invoke(null, "TRUCE");
-            }
-
-            setRelationWish.invoke(a, b, rel);
-        }catch(Exception exc){
-            exc.printStackTrace();
-        }
+        faction.setRelationWish(Factions.getInstance().getFactionById(other), Relation.valueOf(relation.toString()));
     }
 
     @Override
@@ -729,15 +515,10 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     }
 
     @Override
-    public Inventory getChestInventory(Player player, String id) {
+    public Inventory getChestInventory(Player player, String id){
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        try{
-            return (Inventory) chestInventory.invoke(faction);
-        } catch (IllegalAccessException | InvocationTargetException ignored) {
-
-        }
-        return null;
+        return faction.getChest();
     }
 
     @Override
@@ -793,12 +574,23 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
 
     @Override
     public String getRolePrefix(TranslatedRole translatedRole) {
-        String toReturn;
-        try{
-            if(translatedRole == TranslatedRole.ALT)return "";
-            toReturn = (String) getPrefix.invoke(getByValue.invoke(null, translatedRole.getValue() - 1));
-        }catch(Exception ignored){
-            return "$";
+        String toReturn = "";
+        switch(translatedRole.getValue()){
+            case 1:
+                toReturn = FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getRecruit();
+                break;
+            case 2:
+                toReturn = FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getNormal();
+                break;
+            case 3:
+                toReturn = FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getMod();
+                break;
+            case 4:
+                toReturn = FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getColeader();
+                break;
+            case 5:
+                toReturn = FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getAdmin();
+                break;
         }
         return toReturn;
     }
@@ -812,28 +604,10 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
         List<Player> players = new ArrayList<>();
 
         for(FPlayer fPlayer : faction.getFPlayersWhereOnline(true)){
+            if(!fPlayer.getRole().isAtLeast(Role.RECRUIT))continue;
             players.add(Bukkit.getPlayer(UUID.fromString(fPlayer.getId())));
         }
         return players;
-    }
-
-    @Override
-    public List<OfflinePlayer> getOfflineMembers(String id) {
-        List<OfflinePlayer> offliners = new ArrayList<>();
-
-        Faction faction = Factions.getInstance().getFactionById(id);
-
-        if(faction == null)return offliners;
-
-        faction.getFPlayers().forEach(z -> {
-            if(z.getPlayer() == null){
-                offliners.add(Bukkit.getOfflinePlayer(UUID.fromString(z.getId())));
-                return;
-            }
-            if(!z.getPlayer().isOnline())offliners.add(Bukkit.getOfflinePlayer(UUID.fromString(z.getId())));
-        });
-
-        return offliners;
     }
 
     @Override
@@ -862,6 +636,26 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
         UUID id1 = UUID.fromString(uuid);
 
         return Bukkit.getOfflinePlayer(id1);
+    }
+
+    @Override
+    public List<OfflinePlayer> getOfflineMembers(String id) {
+        List<OfflinePlayer> offliners = new ArrayList<>();
+
+        Faction faction = Factions.getInstance().getFactionById(id);
+
+        if(faction == null)return offliners;
+
+        faction.getFPlayers().forEach(z -> {
+            if(!z.getRole().isAtLeast(Role.RECRUIT))return;
+            if(z.getPlayer() == null){
+                offliners.add(Bukkit.getOfflinePlayer(UUID.fromString(z.getId())));
+                return;
+            }
+            if(!z.getPlayer().isOnline())offliners.add(Bukkit.getOfflinePlayer(UUID.fromString(z.getId())));
+        });
+
+        return offliners;
     }
 
     @Override
@@ -960,6 +754,20 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     }
 
     @Override
+    public boolean isAlt(Player player) {
+        FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
+
+        return fPlayer.getRole() == Role.ALT;
+    }
+
+    @EventHandler
+    public void onPowerLoss(PowerLossEvent e) {
+        KPowerLossEvent event = new KPowerLossEvent(e.getfPlayer().getPlayer());
+        Bukkit.getPluginManager().callEvent(event);
+        if(event.isCancelled())e.setCancelled(true);
+    }
+
+    @Override
     public List<UUID> getAllMembers(String id) {
         List<UUID> all = new ArrayList<>();
         for (Player p : getOnlineMembers(id)) {
@@ -1000,14 +808,5 @@ public class AtlasIntegration implements KFaction, ShieldIntegration {
     public String getSafezone() {
         return Factions.getInstance().getSafeZone().getId();
     }
-
-    @Override
-    public boolean isShieldRegionAt(String id, Location location) {
-        return this.isBaseRegion(location, id);
-    }
-
-    @Override
-    public boolean isShieldActive(String id) {
-        return this.isShieldActiveNow(id);
-    }
 }
+

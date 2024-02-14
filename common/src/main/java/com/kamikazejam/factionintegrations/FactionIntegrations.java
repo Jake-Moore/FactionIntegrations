@@ -62,13 +62,12 @@ public class FactionIntegrations {
         return FactionIntegrations.economy != null;
     }
 
-    private static boolean setupFactions() throws NoSuchMethodException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
+    private static boolean setupFactions() {
         final Plugin uuidTest = Bukkit.getPluginManager().getPlugin("Factions");
         if (uuidTest == null) { return false; }
 
-        //TODO: Don't have the jar for this so I can't test it
         if (uuidTest.getDescription().getAuthors().contains("Elapsed")) {
-            FactionIntegrations.integration = new AtlasIntegration();
+            FactionIntegrations.integration = createIntegration("AtlasIntegration");
             Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into AtlasFactions!"));
             return true;
         }
@@ -80,12 +79,8 @@ public class FactionIntegrations {
             return true;
         }
 
-        //TODO: Don't have the jar for this so I can't test it
-        if (uuidTest.getDescription().getAuthors().contains("AL56AF50") || uuidTest.getDescription().getAuthors().contains("SupremeDev")) {
-            FactionIntegrations.integration = new SupremeIntegration();
-            Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into SupremeFactions!"));
-            return true;
-        }
+        // SupremeFactions is now GucciFactions (not adding support for it)
+        // TODO: GucciFactions integration?
 
         if (uuidTest.getDescription().getAuthors().contains("Dominion")) {
             FactionIntegrations.integration = new DominionIntegration();
@@ -133,21 +128,30 @@ public class FactionIntegrations {
             return true;
         }
 
-        // This is FactionsUUID.jar
+        // This is FactionsUUID.jar (written using Golfing's fork)
         if (uuidTest.getDescription().getAuthors().contains("CmdrKittens")) {
-            FactionIntegrations.integration = new UUIDIntegration();
+            FactionIntegrations.integration = createIntegration("UUIDIntegration");
             Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into FactionsUUID!"));
             return true;
         }
 
         // This is Factions-Jartex.jar
         if (uuidTest.getDescription().getAuthors().contains("JustThiemo")) {
-            FactionIntegrations.integration = new JartexIntegration();
+            FactionIntegrations.integration = createIntegration("JartexIntegration");
             Bukkit.getConsoleSender().sendMessage(c("&a&lFactionsKore &7- &aSuccessfully hooked into FactionsUUID (Jartex)!"));
             return true;
         }
 
         return false;
+    }
+    private static KFaction createIntegration(String name) {
+        try {
+            String currPackage = FactionIntegrations.class.getPackage().getName();
+            String target = currPackage + ".integrations." + name;
+            return (KFaction) Class.forName(target).getConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
+            throw new RuntimeException("Failed to create integration '" + name + "'", e);
+        }
     }
 
     private static String c(String s) {

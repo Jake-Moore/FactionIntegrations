@@ -15,6 +15,7 @@
     <modules>
         <module>factions-atlas</module>
         <module>factions-jartex</module>
+        <module>factions-uuid</module>
     </modules>
 
     <properties>
