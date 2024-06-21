@@ -1,5 +1,5 @@
 @Suppress("PropertyName")
-var VERSION = "2.1.2"
+var VERSION = "2.1.3"
 
 plugins { // needed for the subprojects section to work
     id("java")
@@ -25,9 +25,9 @@ allprojects {
     apply(plugin = "java")
     apply(plugin = "java-library")
 
-    // Provision Java 17 all subprojects
+    // Provision Java 21 all subprojects
     java {
-        toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+        toolchain.languageVersion.set(JavaLanguageVersion.of(21))
     }
 
     repositories {
