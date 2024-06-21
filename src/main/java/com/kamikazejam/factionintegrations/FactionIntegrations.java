@@ -35,6 +35,7 @@ public class FactionIntegrations {
                 plugin.getLogger().info("Failed to setup Factions Integration");
                 plugin.getPluginLoader().disablePlugin(plugin);
             }
+            PluginSource.setIntegration(integration);
 
             // Yoink all this shit from golfing :) ty
             try {

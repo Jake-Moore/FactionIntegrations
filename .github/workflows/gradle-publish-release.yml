@@ -56,9 +56,7 @@ jobs:
           omitDraftDuringUpdate: true
           omitNameDuringUpdate: true
           omitPrereleaseDuringUpdate: true
-          tag: "${{ steps.project.outputs.version }}"
-
-
+          tag: "${{ steps.extract_version.outputs.version }}"
 
       # Update the README.md Badge with the new version
       - name: Create Version Badge
@@ -68,5 +66,5 @@ jobs:
           gistID: 176f75278bd544e8657fdcf5562e7693
           filename: test.json # Use test.svg if you want to use the SVG mode.
           label: Latest Release
-          message: "${{ steps.project.outputs.version }}"
+          message: "${{ steps.extract_version.outputs.version }}"
           color: blue

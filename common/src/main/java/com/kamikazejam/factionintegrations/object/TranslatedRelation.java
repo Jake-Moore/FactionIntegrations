@@ -1,6 +1,6 @@
 package com.kamikazejam.factionintegrations.object;
 
-import com.kamikazejam.factionintegrations.integrations.KFaction;
+import com.kamikazejam.factionintegrations.utils.PluginSource;
 import lombok.Getter;
 import org.bukkit.ChatColor;
 
@@ -22,8 +22,8 @@ public enum TranslatedRelation {
         this.relationColor = chatColor;
     }
 
-    public ChatColor getRelationColor(KFaction faction) {
-        if (!faction.isRelationColorsEnabled()) return null;
+    public ChatColor getRelationColor() {
+        if (!PluginSource.getIntegration().isRelationColorsEnabled()) return null;
         return this.relationColor;
     }
 

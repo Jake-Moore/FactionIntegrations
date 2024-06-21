@@ -1,5 +1,6 @@
 package com.kamikazejam.factionintegrations.utils;
 
+import com.kamikazejam.factionintegrations.integrations.KFaction;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 public class PluginSource {
     private static @Nullable JavaPlugin plugin;
     private static Economy economy;
+    private static KFaction integration;
 
     public static @NotNull JavaPlugin get() {
         if (plugin == null) {
@@ -29,5 +31,15 @@ public class PluginSource {
             throw new IllegalStateException("Economy not set");
         }
         return economy;
+    }
+
+    public static KFaction getIntegration() {
+        if (integration == null) {
+            throw new IllegalStateException("Economy not set");
+        }
+        return integration;
+    }
+    public static void setIntegration(@NotNull KFaction integration) {
+        PluginSource.integration = integration;
     }
 }
