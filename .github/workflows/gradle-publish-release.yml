@@ -49,7 +49,7 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "/build/libs/*.jar"
+          artifacts: "build/libs/*.jar"
           allowUpdates: true
           removeArtifacts: true
           omitBodyDuringUpdate: true
