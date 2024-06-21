@@ -4,72 +4,99 @@ import com.kamikazejam.factionintegrations.integrations.*;
 import com.kamikazejam.factionintegrations.utils.NmsManager;
 import com.kamikazejam.factionintegrations.utils.PluginSource;
 import com.kamikazejam.factionintegrations.utils.StringUtil;
-import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+// ----------------------------------------------------------------------------------------------- //
+// FactionIntegrations is meant to be a singleton-like class where all access goes through
+//  getIntegration or getEconomy (where instances are created the first time they are needed)
+// ----------------------------------------------------------------------------------------------- //
 
 @SuppressWarnings("unused")
 public class FactionIntegrations {
-    @Getter
-    private static JavaPlugin plugin;
-    @Getter
+    // ----------------------------------------------------------------------------------------------- //
+    //                                          STATIC FIELDS                                          //
+    // ----------------------------------------------------------------------------------------------- //
+    private static @Nullable JavaPlugin plugin;
     private static KFaction integration;
-    @Getter
     private static Economy economy;
 
-    public static void setup(JavaPlugin plugin) {
+    // ----------------------------------------------------------------------------------------------- //
+    //                                           API METHODS                                           //
+    // ----------------------------------------------------------------------------------------------- //
+    public static boolean hasFactionsInstalled() {
+        return Bukkit.getPluginManager().getPlugin("Factions") != null;
+    }
+    public static @NotNull KFaction getIntegration(@NotNull JavaPlugin plugin) {
+        if (integration == null) {
+            if (!setup(plugin) || integration == null) {
+                Bukkit.getPluginManager().disablePlugin(plugin);
+                throw new IllegalStateException("Failed to setup integration!");
+            }
+        }
+        return integration;
+    }
+    public static @NotNull Economy getEconomy(@NotNull JavaPlugin plugin) {
+        if (economy == null && !setupEconomy(plugin)) {
+            throw new IllegalStateException("Failed to setup Economy!");
+        }
+        return economy;
+    }
+
+
+
+
+
+
+    // ----------------------------------------------------------------------------------------------- //
+    //                                         PRIVATE HELPERS                                         //
+    // ----------------------------------------------------------------------------------------------- //
+    private static boolean setup(JavaPlugin plugin) {
+        // Store plugin instance
         FactionIntegrations.plugin = plugin;
 
+        // Load Economy (required by many integrations)
         if (!setupEconomy(plugin)) {
             plugin.getLogger().info("Failed to setup Economy Integration");
-            plugin.getPluginLoader().disablePlugin(plugin);
+            return false;
         }
 
+        // Store Economy
         PluginSource.set(plugin, economy);
 
+        // Try to setup Factions
         try {
             if (!setupFactions(plugin)) {
                 plugin.getLogger().info("Failed to setup Factions Integration");
-                plugin.getPluginLoader().disablePlugin(plugin);
+                return false;
             }
+
             PluginSource.setIntegration(integration);
+            Bukkit.getPluginManager().registerEvents(FactionIntegrations.integration, plugin);
+            return true;
 
-            // Yoink all this shit from golfing :) ty
-            try {
-                plugin.getServer().getPluginManager().registerEvents(FactionIntegrations.integration, plugin);
-            } catch (Exception e) {
-                Bukkit.getConsoleSender().sendMessage(String.format("[%s] - Disabled due to error during setup of integration!", plugin.getName()));
-                plugin.getServer().getPluginManager().disablePlugin(plugin);
-                e.printStackTrace();
-                return;
-            }
         } catch (Exception e) {
+            Bukkit.getConsoleSender().sendMessage(String.format("[%s] - Disabled due to error during setup of integration!", plugin.getName()));
             e.printStackTrace();
-            plugin.getLogger().info("Failed to setup Factions Integration");
+            return false;
         }
     }
 
-    public static JavaPlugin get() {
-        return FactionIntegrations.getPlugin();
-    }
-
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean setupEconomy(JavaPlugin plugin) {
-        if (plugin.getServer().getPluginManager().getPlugin("Vault") == null) {
-            return false;
-        }
+        if (FactionIntegrations.economy != null) { return true; }
+        if (plugin.getServer().getPluginManager().getPlugin("Vault") == null) { return false; }
+
         RegisteredServiceProvider<Economy> rsp = plugin.getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) {
-            return false;
-        }
+        if (rsp == null) { return false; }
+
         FactionIntegrations.economy = rsp.getProvider();
         return FactionIntegrations.economy != null;
-    }
-    
-    public static boolean hasFactionsInstalled() {
-        return Bukkit.getPluginManager().getPlugin("Factions") != null;
     }
 
     private static boolean setupFactions(JavaPlugin plugin) throws Exception {
@@ -81,28 +108,28 @@ public class FactionIntegrations {
         // This is MC 1.20 Factions
         if (uuidTest.getDescription().getAuthors().contains("i01") && NmsManager.isAtOrAfter(18)) {
             FactionIntegrations.integration = new Factions1_20Integration(plugin);
-            Bukkit.getConsoleSender().sendMessage(c("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into FactionsX!"));
+            send("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into FactionsX!");
             return true;
         }
 
         // This is Atlas Factions
         if (uuidTest.getDescription().getAuthors().contains("Elapsed")) {
             FactionIntegrations.integration = new AtlasIntegration();
-            plugin.getLogger().info(c("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into AtlasFactions!"));
+            send("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into AtlasFactions!");
             return true;
         }
 
         // This is Joseph's Factions
         if (uuidTest.getDescription().getAuthors().contains("Cayorion")) {
             FactionIntegrations.integration = new MCoreIntegration();
-            Bukkit.getConsoleSender().sendMessage(c("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into Joseph MassiveCore Factions!"));
+            send("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into Joseph MassiveCore Factions!");
             return true;
         }
 
         // This is StellarFactions
         if (uuidTest.getDescription().getAuthors().contains("ipodtouch0218")) {
             FactionIntegrations.integration  = new StellarIntegration();
-            Bukkit.getConsoleSender().sendMessage(c("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into StellarFactions!"));
+            send("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into StellarFactions!");
             return true;
         }
 
@@ -110,39 +137,39 @@ public class FactionIntegrations {
         if (uuidTest.getDescription().getAuthors().contains("DroppingAnvil")) {
             if (uuidTest.getDescription().getVersion().equals("1.6.9.5-2.0.6-X")) {
                 FactionIntegrations.integration = new SaberFactionsXIntegration();
-                Bukkit.getConsoleSender().sendMessage(c("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into SaberFactionsX!"));
+                send("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into SaberFactionsX!");
                 return true;
             }
             FactionIntegrations.integration = new SaberFactionsIntegration();
-            Bukkit.getConsoleSender().sendMessage(c("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into SaberFactions!"));
+            send("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into SaberFactions!");
             return true;
         }
 
         // This is Jerry's VulcanFactions
         if (uuidTest.getDescription().getAuthors().contains("CmdrKittens") && uuidTest.getDescription().getAuthors().contains("Jerry")) {
             FactionIntegrations.integration = new JerryIntegration();
-            Bukkit.getConsoleSender().sendMessage(c("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into FactionsUUID (Jerry's Fork)!"));
+            send("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into FactionsUUID (Jerry's Fork)!");
             return true;
         }
 
         // This is Factions UUID (new)
         if (uuidTest.getDescription().getAuthors().contains("mbaxter")) {
             FactionIntegrations.integration = new NewUUIDIntegration();
-            Bukkit.getConsoleSender().sendMessage(c("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into FactionsUUID!"));
+            send("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into FactionsUUID!");
             return true;
         }
 
         // This is FactionsUUID.jar (written using Golfing's fork)
         if (uuidTest.getDescription().getAuthors().contains("CmdrKittens")) {
             FactionIntegrations.integration = new UUIDIntegration();
-            Bukkit.getConsoleSender().sendMessage(c("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into FactionsUUID!"));
+            send("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into FactionsUUID!");
             return true;
         }
 
         // This is Factions-Jartex.jar
         if (uuidTest.getDescription().getAuthors().contains("JustThiemo")) {
             FactionIntegrations.integration = new JartexIntegration();
-            Bukkit.getConsoleSender().sendMessage(c("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into FactionsUUID (Jartex)!"));
+            send("&a&l" + plugin.getName() + " &7- &aSuccessfully hooked into FactionsUUID (Jartex)!");
             return true;
         }
 
@@ -156,7 +183,11 @@ public class FactionIntegrations {
         return false;
     }
 
-    private static String c(String s) {
-        return StringUtil.t(s);
+    private static void send(String s) {
+        if (plugin == null) {
+            Bukkit.getConsoleSender().sendMessage(StringUtil.t(s));
+        }else {
+            plugin.getLogger().info(StringUtil.t(s));
+        }
     }
 }
