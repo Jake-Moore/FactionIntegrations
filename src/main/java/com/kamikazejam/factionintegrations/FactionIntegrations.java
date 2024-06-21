@@ -32,20 +32,49 @@ public class FactionIntegrations {
     public static boolean hasFactionsInstalled() {
         return Bukkit.getPluginManager().getPlugin("Factions") != null;
     }
-    public static @NotNull KFaction getIntegration(@NotNull JavaPlugin plugin) {
-        if (integration == null) {
-            if (!setup(plugin) || integration == null) {
-                Bukkit.getPluginManager().disablePlugin(plugin);
-                throw new IllegalStateException("Failed to setup integration!");
-            }
+    public static void supplyPlugin(@Nullable JavaPlugin plugin) {
+        if (FactionIntegrations.plugin == null) {
+            FactionIntegrations.plugin = plugin;
+        }
+    }
+
+    public static @NotNull KFaction getIntegration() {
+        // Return the integration if it's already been setup
+        if (integration != null) { return integration; }
+
+        // Require a plugin to create an integration
+        if (plugin == null) {
+            throw new IllegalStateException("FactionIntegrations plugin not setup!");
+        }
+
+        // Throw if we can't set up the integration
+        if (!createIntegration(plugin) || integration == null) {
+            Bukkit.getPluginManager().disablePlugin(plugin);
+            throw new IllegalStateException("Failed to setup integration!");
         }
         return integration;
     }
-    public static @NotNull Economy getEconomy(@NotNull JavaPlugin plugin) {
-        if (economy == null && !setupEconomy(plugin)) {
+    public static @NotNull KFaction getIntegration(@NotNull JavaPlugin plugin) {
+        FactionIntegrations.supplyPlugin(plugin);
+        return getIntegration();
+    }
+    public static Economy getEconomy() {
+        // Return the economy if it's already been setup
+        if (economy != null) { return economy; }
+        // Require a plugin to create an economy
+        if (plugin == null) {
+            throw new IllegalStateException("FactionIntegrations plugin not setup!");
+        }
+        // Throw if we can't set up the economy
+        if (!setupEconomy(plugin) || economy == null) {
+            Bukkit.getPluginManager().disablePlugin(plugin);
             throw new IllegalStateException("Failed to setup Economy!");
         }
         return economy;
+    }
+    public static @NotNull Economy getEconomy(@NotNull JavaPlugin plugin) {
+        FactionIntegrations.supplyPlugin(plugin);
+        return getEconomy();
     }
 
 
@@ -56,7 +85,7 @@ public class FactionIntegrations {
     // ----------------------------------------------------------------------------------------------- //
     //                                         PRIVATE HELPERS                                         //
     // ----------------------------------------------------------------------------------------------- //
-    private static boolean setup(JavaPlugin plugin) {
+    private static boolean createIntegration(JavaPlugin plugin) {
         // Store plugin instance
         FactionIntegrations.plugin = plugin;
 
