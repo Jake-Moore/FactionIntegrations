@@ -26,28 +26,27 @@ jobs:
           server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
           settings-path: ${{ github.workspace }} # location for the settings.xml file
 
-      - name: Maven Settings
-        uses: s4u/maven-settings-action@v2.8.0
-        with:
-          servers: '[{"id": "luxious-public", "username": "${{ secrets.MAVEN_NAME }}", "password": "${{ secrets.MAVEN_SECRET }}"}, {"id": "luxious-factions-libs", "username": "${{ secrets.MAVEN_NAME }}", "password": "${{ secrets.MAVEN_SECRET }}"}]'
+      # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
+      # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
 
-      - name: Build & Publish to Luxious Maven
-        run: mvn -B deploy --file pom.xml
+      - name: Build & Publish to Luxious Nexus
+        run: gradle publish
 
       #--------------------------------------------------------------------------------------------
       #           Create a Github Release
       #--------------------------------------------------------------------------------------------
-      - name: Extract Maven Project Version
-        run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
-        id: project
-
-      - name: Rename Artifact
-        run: mv dist/target/FactionIntegrations-${{ steps.project.outputs.version }}-Source.jar dist/target/FactionIntegrations-${{ steps.project.outputs.version }}.jar
+      - name: Extract Version from Gradle
+        id: extract_version
+        run: |
+          version=$(gradle properties -q | grep "^version:" | awk '{print $2}')
+          echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "dist/target/FactionIntegrations-${{ steps.project.outputs.version }}.jar"
+          artifacts: "/build/libs/*.jar"
           allowUpdates: true
           removeArtifacts: true
           omitBodyDuringUpdate: true
