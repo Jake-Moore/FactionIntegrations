@@ -4,10 +4,14 @@ import com.kamikazejam.factionintegrations.FactionIntegrations;
 import com.kamikazejam.factionintegrations.integrations.KFaction;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class MoneyCurrency implements Currency {
+public class MoneyCurrency extends Currency {
+    public MoneyCurrency(@NotNull KFaction integration) {
+        super(integration);
+    }
 
     @Override
     public double getBalance(String id) {

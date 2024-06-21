@@ -1,10 +1,10 @@
 package com.kamikazejam.factionintegrations.integrations;
 
-import com.kamikazejam.factionintegrations.FactionIntegrations;
 import com.kamikazejam.factionintegrations.event.*;
 import com.kamikazejam.factionintegrations.object.TranslatedRelation;
 import com.kamikazejam.factionintegrations.object.TranslatedRole;
 import com.kamikazejam.factionintegrations.shield.ShieldIntegration;
+import com.kamikazejam.factionintegrations.utils.PluginSource;
 import com.massivecraft.factions.*;
 import com.massivecraft.factions.event.*;
 import com.massivecraft.factions.iface.RelationParticipator;
@@ -28,7 +28,7 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
             public void run() {
                 Bukkit.getPluginManager().callEvent(new KFactionCreateEvent(getTagFromId(e.getFactionTag())));
             }
-        }.runTaskLater(FactionIntegrations.get(), 2);
+        }.runTaskLater(PluginSource.get(), 2);
     }
 
     @EventHandler

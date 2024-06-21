@@ -1,18 +1,25 @@
 package com.kamikazejam.factionintegrations.currency;
 
+import com.kamikazejam.factionintegrations.FactionIntegrations;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public class CurrencyHandler {
-    public static final MoneyCurrency MONEY = new MoneyCurrency();
-    public static final ExpCurrency EXP = new ExpCurrency();
 
+    private static @Nullable MoneyCurrency MONEY = null;
     public static MoneyCurrency getMoneyCurrency() {
+        if (MONEY == null) {
+            MONEY = new MoneyCurrency(FactionIntegrations.getIntegration());
+        }
         return MONEY;
     }
 
+    private static @Nullable ExpCurrency EXP = null;
     public static ExpCurrency getExpCurrency() {
+        if (EXP == null) {
+            EXP = new ExpCurrency(FactionIntegrations.getIntegration());
+        }
         return EXP;
     }
 

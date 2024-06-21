@@ -1,10 +1,19 @@
 package com.kamikazejam.factionintegrations.currency;
 
-public interface Currency {
+import com.kamikazejam.factionintegrations.integrations.KFaction;
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
-    double getBalance(String id);
+@Getter
+public abstract class Currency {
+    private final @NotNull KFaction integration;
+    public Currency(@NotNull KFaction integration) {
+        this.integration = integration;
+    }
 
-    void addBalance(String id, double add);
+    public abstract double getBalance(String id);
 
-    void subtractBalance(String id, double remove);
+    public abstract void addBalance(String id, double add);
+
+    public abstract void subtractBalance(String id, double remove);
 }

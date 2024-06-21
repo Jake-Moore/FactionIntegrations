@@ -4,8 +4,12 @@ import com.kamikazejam.factionintegrations.FactionIntegrations;
 import com.kamikazejam.factionintegrations.integrations.KFaction;
 import com.kamikazejam.factionintegrations.utils.EXP;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-public class ExpCurrency implements Currency {
+public class ExpCurrency extends Currency {
+    public ExpCurrency(@NotNull KFaction integration) {
+        super(integration);
+    }
 
     @Override
     public double getBalance(String id) {
