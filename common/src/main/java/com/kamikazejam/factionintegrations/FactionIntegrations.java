@@ -64,6 +64,10 @@ public class FactionIntegrations {
         FactionIntegrations.economy = rsp.getProvider();
         return FactionIntegrations.economy != null;
     }
+    
+    public static boolean hasFactionsInstalled() {
+        return Bukkit.getPluginManager().getPlugin("Factions") != null;
+    }
 
     private static boolean setupFactions(JavaPlugin plugin) {
         final Plugin uuidTest = Bukkit.getPluginManager().getPlugin("Factions");
