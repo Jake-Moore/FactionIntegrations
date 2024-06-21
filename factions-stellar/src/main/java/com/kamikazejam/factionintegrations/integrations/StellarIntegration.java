@@ -1,10 +1,10 @@
 package com.kamikazejam.factionintegrations.integrations;
 
-import com.kamikazejam.factionintegrations.FactionIntegrations;
 import com.kamikazejam.factionintegrations.event.KFactionCreateEvent;
 import com.kamikazejam.factionintegrations.event.KLandClaimEvent;
 import com.kamikazejam.factionintegrations.object.TranslatedRelation;
 import com.kamikazejam.factionintegrations.object.TranslatedRole;
+import com.kamikazejam.factionintegrations.utils.PluginSource;
 import com.massivecraft.factions.*;
 import com.massivecraft.factions.cmd.CmdJoin;
 import com.massivecraft.factions.event.FactionCreateEvent;
@@ -35,7 +35,7 @@ public class StellarIntegration extends UUIDIntegration implements KFaction {
             public void run() {
                 Bukkit.getPluginManager().callEvent(new KFactionCreateEvent(getTagFromId(e.getFactionTag())));
             }
-        }.runTaskLater(FactionIntegrations.get(), 1);
+        }.runTaskLater(PluginSource.get(), 1);
     }
 
     @EventHandler
@@ -258,7 +258,7 @@ public class StellarIntegration extends UUIDIntegration implements KFaction {
 
         OfflinePlayer to = isUUID(accountId) ? Bukkit.getOfflinePlayer(UUID.fromString(accountId)) : Bukkit.getOfflinePlayer(accountId);
 
-        return FactionIntegrations.getEconomy().getBalance(to);
+        return PluginSource.getEconomy().getBalance(to);
     }
 
     @Override
@@ -267,7 +267,7 @@ public class StellarIntegration extends UUIDIntegration implements KFaction {
 
         OfflinePlayer to = isUUID(accountId) ? Bukkit.getOfflinePlayer(UUID.fromString(accountId)) : Bukkit.getOfflinePlayer(accountId);
 
-        FactionIntegrations.getEconomy().depositPlayer(to, add);
+        PluginSource.getEconomy().depositPlayer(to, add);
     }
 
     @Override
@@ -276,7 +276,7 @@ public class StellarIntegration extends UUIDIntegration implements KFaction {
 
         OfflinePlayer to = isUUID(accountId) ? Bukkit.getOfflinePlayer(UUID.fromString(accountId)) : Bukkit.getOfflinePlayer(accountId);
 
-        FactionIntegrations.getEconomy().withdrawPlayer(to, remove);
+        PluginSource.getEconomy().withdrawPlayer(to, remove);
     }
 
     @Override

@@ -1,0 +1,69 @@
+name: Maven Deploy & Release
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Access to Publish a Release
+      packages: write # Access to Publish a Package
+
+    #--------------------------------------------------------------------------------------------
+    #           Build the Artifact and Publish to Luxious Repository
+    #--------------------------------------------------------------------------------------------
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+          settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+      # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
+      # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+
+      - name: Build & Publish to Luxious Nexus
+        run: gradle publish
+
+      #--------------------------------------------------------------------------------------------
+      #           Create a Github Release
+      #--------------------------------------------------------------------------------------------
+      - name: Extract Version from Gradle
+        id: extract_version
+        run: |
+          version=$(gradle properties -q | grep "^version:" | awk '{print $2}')
+          echo "version=$version" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "/build/libs/*.jar"
+          allowUpdates: true
+          removeArtifacts: true
+          omitBodyDuringUpdate: true
+          omitDraftDuringUpdate: true
+          omitNameDuringUpdate: true
+          omitPrereleaseDuringUpdate: true
+          tag: "${{ steps.project.outputs.version }}"
+
+
+
+      # Update the README.md Badge with the new version
+      - name: Create Version Badge
+        uses: schneegans/dynamic-badges-action@v1.7.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: 176f75278bd544e8657fdcf5562e7693
+          filename: test.json # Use test.svg if you want to use the SVG mode.
+          label: Latest Release
+          message: "${{ steps.project.outputs.version }}"
+          color: blue

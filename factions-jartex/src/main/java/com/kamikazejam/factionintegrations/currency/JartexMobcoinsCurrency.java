@@ -1,17 +1,21 @@
 package com.kamikazejam.factionintegrations.currency;
 
-import com.kamikazejam.factionintegrations.FactionIntegrations;
 import com.kamikazejam.factionintegrations.integrations.KFaction;
 import net.crafti.common.member.Members;
 import net.crafti.common.modules.modules.mobcoins.MobCoinsMember;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class JartexMobcoinsCurrency implements Currency {
+public class JartexMobcoinsCurrency extends Currency {
+
+    public JartexMobcoinsCurrency(@NotNull KFaction integration) {
+        super(integration);
+    }
 
     @Override
     public double getBalance(String id) {
-        KFaction i = FactionIntegrations.getIntegration();
+        KFaction i = this.getIntegration();
         if (i.supportsMobcoinsOperations()) {
             return i.getMobcoins(id);
         }
@@ -29,7 +33,7 @@ public class JartexMobcoinsCurrency implements Currency {
 
     @Override
     public void addBalance(String id, double add) {
-        KFaction i = FactionIntegrations.getIntegration();
+        KFaction i = this.getIntegration();
         if (i.supportsMobcoinsOperations()) {
             i.addMoney(id, add);
             return;
@@ -45,7 +49,7 @@ public class JartexMobcoinsCurrency implements Currency {
 
     @Override
     public void subtractBalance(String id, double remove) {
-        KFaction i = FactionIntegrations.getIntegration();
+        KFaction i = this.getIntegration();
         if (i.supportsMobcoinsOperations()) {
             i.subtractMoney(id, remove);
             return;

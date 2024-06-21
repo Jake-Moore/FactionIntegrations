@@ -1,9 +1,9 @@
 package com.kamikazejam.factionintegrations.integrations;
 
-import com.kamikazejam.factionintegrations.FactionIntegrations;
 import com.kamikazejam.factionintegrations.event.*;
 import com.kamikazejam.factionintegrations.object.TranslatedRelation;
 import com.kamikazejam.factionintegrations.object.TranslatedRole;
+import com.kamikazejam.factionintegrations.utils.PluginSource;
 import com.massivecraft.factions.*;
 import com.massivecraft.factions.data.MemoryFaction;
 import com.massivecraft.factions.event.*;
@@ -209,7 +209,7 @@ public class NewUUIDIntegration implements KFaction {
 
         OfflinePlayer to = isUUID(accountId) ? Bukkit.getOfflinePlayer(UUID.fromString(accountId)) : Bukkit.getOfflinePlayer(accountId);
 
-        return FactionIntegrations.getEconomy().getBalance(to);
+        return PluginSource.getEconomy().getBalance(to);
     }
 
     @Override
@@ -221,9 +221,9 @@ public class NewUUIDIntegration implements KFaction {
             public void run() {
                 OfflinePlayer to = isUUID(accountId) ? Bukkit.getOfflinePlayer(UUID.fromString(accountId)) : Bukkit.getOfflinePlayer(accountId);
 
-                FactionIntegrations.getEconomy().depositPlayer(to, add);
+                PluginSource.getEconomy().depositPlayer(to, add);
             }
-        }.runTaskAsynchronously(FactionIntegrations.get());
+        }.runTaskAsynchronously(PluginSource.get());
     }
 
     @Override
@@ -232,7 +232,7 @@ public class NewUUIDIntegration implements KFaction {
 
         OfflinePlayer to = isUUID(accountId) ? Bukkit.getOfflinePlayer(UUID.fromString(accountId)) : Bukkit.getOfflinePlayer(accountId);
 
-        FactionIntegrations.getEconomy().withdrawPlayer(to, remove);
+        PluginSource.getEconomy().withdrawPlayer(to, remove);
     }
 
     @Override

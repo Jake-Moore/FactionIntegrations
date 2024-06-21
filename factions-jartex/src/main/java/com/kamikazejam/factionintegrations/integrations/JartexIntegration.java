@@ -1,10 +1,10 @@
 package com.kamikazejam.factionintegrations.integrations;
 
 import com.google.common.collect.Lists;
-import com.kamikazejam.factionintegrations.FactionIntegrations;
 import com.kamikazejam.factionintegrations.event.*;
 import com.kamikazejam.factionintegrations.object.TranslatedRelation;
 import com.kamikazejam.factionintegrations.object.TranslatedRole;
+import com.kamikazejam.factionintegrations.utils.PluginSource;
 import com.massivecraft.factions.*;
 import com.massivecraft.factions.event.*;
 import com.massivecraft.factions.iface.RelationParticipator;
@@ -37,7 +37,7 @@ public class JartexIntegration implements KFaction {
 
                 Bukkit.getPluginManager().callEvent(new KFactionCreateEvent(theFaction.getId()));
             }
-        }.runTaskLater(FactionIntegrations.get(), 1);
+        }.runTaskLater(PluginSource.get(), 1);
     }
 
     @EventHandler
@@ -255,7 +255,7 @@ public class JartexIntegration implements KFaction {
 
         OfflinePlayer to = isUUID(accountId) ? Bukkit.getOfflinePlayer(UUID.fromString(accountId)) : Bukkit.getOfflinePlayer(accountId);
 
-        return FactionIntegrations.getEconomy().getBalance(to);
+        return PluginSource.getEconomy().getBalance(to);
     }
 
     @Override
@@ -264,7 +264,7 @@ public class JartexIntegration implements KFaction {
 
         OfflinePlayer to = isUUID(accountId) ? Bukkit.getOfflinePlayer(UUID.fromString(accountId)) : Bukkit.getOfflinePlayer(accountId);
 
-        FactionIntegrations.getEconomy().depositPlayer(to, add);
+        PluginSource.getEconomy().depositPlayer(to, add);
     }
 
     @Override
@@ -273,7 +273,7 @@ public class JartexIntegration implements KFaction {
 
         OfflinePlayer to = isUUID(accountId) ? Bukkit.getOfflinePlayer(UUID.fromString(accountId)) : Bukkit.getOfflinePlayer(accountId);
 
-        FactionIntegrations.getEconomy().withdrawPlayer(to, remove);
+        PluginSource.getEconomy().withdrawPlayer(to, remove);
     }
 
     @Override

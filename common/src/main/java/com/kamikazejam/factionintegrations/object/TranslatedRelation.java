@@ -1,6 +1,7 @@
 package com.kamikazejam.factionintegrations.object;
 
-import com.kamikazejam.factionintegrations.FactionIntegrations;
+import com.kamikazejam.factionintegrations.integrations.KFaction;
+import lombok.Getter;
 import org.bukkit.ChatColor;
 
 @SuppressWarnings({"unused"})
@@ -12,6 +13,7 @@ public enum TranslatedRelation {
     NEUTRAL(2, ChatColor.WHITE),
     ENEMY(1, ChatColor.RED);
 
+    @Getter
     private final int value;
     private final ChatColor relationColor;
 
@@ -20,12 +22,8 @@ public enum TranslatedRelation {
         this.relationColor = chatColor;
     }
 
-    public int getValue() {
-        return this.value;
-    }
-
-    public ChatColor getRelationColor() {
-        if (!FactionIntegrations.getIntegration().isRelationColorsEnabled()) return null;
+    public ChatColor getRelationColor(KFaction faction) {
+        if (!faction.isRelationColorsEnabled()) return null;
         return this.relationColor;
     }
 

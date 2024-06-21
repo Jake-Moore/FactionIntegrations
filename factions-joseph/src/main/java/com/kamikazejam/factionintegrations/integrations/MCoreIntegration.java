@@ -1,11 +1,11 @@
 package com.kamikazejam.factionintegrations.integrations;
 
 import com.golfing8.kore.event.RaidingOutpostResetEvent;
-import com.kamikazejam.factionintegrations.FactionIntegrations;
 import com.kamikazejam.factionintegrations.event.*;
 import com.kamikazejam.factionintegrations.object.TranslatedRelation;
 import com.kamikazejam.factionintegrations.object.TranslatedRole;
 import com.kamikazejam.factionintegrations.shield.ShieldIntegration;
+import com.kamikazejam.factionintegrations.utils.PluginSource;
 import com.massivecraft.factions.Rel;
 import com.massivecraft.factions.engine.EnginePermBuild;
 import com.massivecraft.factions.entity.*;
@@ -49,7 +49,7 @@ public class MCoreIntegration implements MKFaction, ShieldIntegration {
             public void run() {
                 Bukkit.getPluginManager().callEvent(new KFactionCreateEvent(create.getFactionId()));
             }
-        }.runTask(FactionIntegrations.get());
+        }.runTask(PluginSource.get());
     }
 
     @EventHandler
@@ -173,21 +173,21 @@ public class MCoreIntegration implements MKFaction, ShieldIntegration {
     public double getBalance(String id) {
         OfflinePlayer to = isUUID(id) ? Bukkit.getOfflinePlayer(UUID.fromString(id)) : Bukkit.getOfflinePlayer(id);
 
-        return FactionIntegrations.getEconomy().getBalance(to);
+        return PluginSource.getEconomy().getBalance(to);
     }
 
     @Override
     public void addBalance(String id, double add) {
         OfflinePlayer to = isUUID(id) ? Bukkit.getOfflinePlayer(UUID.fromString(id)) : Bukkit.getOfflinePlayer(id);
 
-        FactionIntegrations.getEconomy().depositPlayer(to, add);
+        PluginSource.getEconomy().depositPlayer(to, add);
     }
 
     @Override
     public void subtractBalance(String id, double remove) {
         OfflinePlayer to = isUUID(id) ? Bukkit.getOfflinePlayer(UUID.fromString(id)) : Bukkit.getOfflinePlayer(id);
 
-        FactionIntegrations.getEconomy().withdrawPlayer(to, remove);
+        PluginSource.getEconomy().withdrawPlayer(to, remove);
     }
 
     @Override
