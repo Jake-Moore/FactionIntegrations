@@ -7,11 +7,12 @@ import com.kamikazejam.factionintegrations.object.TranslatedRole;
 import com.kamikazejam.factionintegrations.utils.PluginSource;
 import com.massivecraft.factions.*;
 import com.massivecraft.factions.event.*;
-import com.massivecraft.factions.iface.RelationParticipator;
 import com.massivecraft.factions.jartex.FactionsAPI;
 import com.massivecraft.factions.jartex.faction.permission.PRole;
 import com.massivecraft.factions.jartex.faction.permission.PTNormal;
+import com.massivecraft.factions.listeners.FactionsBlockListener;
 import com.massivecraft.factions.struct.Relation;
+import com.massivecraft.factions.struct.Role;
 import com.massivecraft.factions.zcore.persist.MemoryBoard;
 import com.massivecraft.factions.zcore.persist.MemoryFaction;
 import lombok.SneakyThrows;
@@ -21,11 +22,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "unused"})
 public class JartexIntegration implements KFaction {
 
     @EventHandler
@@ -128,124 +127,48 @@ public class JartexIntegration implements KFaction {
         }
     }
 
-    private Method canBuild;
-
-    private Method getRole;
-
-    private Method relationTo, setRole;
-
-    private Object leader, coleader, moderator, normal, recruit;
-
-    private Method setTNT, getTNT, getMaximumTNT;
-
-    private Method getActiveStrikes;
-
-    private Method setFaction;
-
-    private Method getPermissions;
-
-    private Method setRelationWish;
-
-    private Method getAllClaims;
-
-    private Method isAlt;
-
-    private Method isAtLeast;
-
-    private Method getByID;
-
-    public JartexIntegration() throws ClassNotFoundException, NoSuchMethodException {
-        relationTo = RelationParticipator.class.getMethod("getRelationTo", RelationParticipator.class);
-
-        getRole = FPlayer.class.getMethod("getRole");
-
-        Class<?> roleClass = Class.forName("com.massivecraft.factions.struct.Role");
-
-        setRole = FPlayer.class.getMethod("setRole", roleClass);
-
-        for (Object type : roleClass.getEnumConstants()) {
-            String toString = ((Enum<?>) type).name();
-            switch (toString.toUpperCase()) {
-                case "LEADER":
-                case "ADMIN":
-                    leader = type;
-                    break;
-                case "CO_ADMIN":
-                    coleader = type;
-                    break;
-                case "MODERATOR":
-                    moderator = type;
-                    break;
-                case "NORMAL":
-                    normal = type;
-                    break;
-                case "RECRUIT":
-                    recruit = type;
-            }
-        }
-
-        getActiveStrikes = Faction.class.getMethod("getActiveStrikes");
-
-        setFaction = FPlayer.class.getMethod("setFaction", Faction.class, boolean.class);
-
-        isAtLeast = roleClass.getMethod("isAtLeast", roleClass);
-
-        isAlt = FPlayer.class.getMethod("isAlt");
-
-        getPermissions = Faction.class.getMethod("getPermissions");
-
-        setRelationWish = Faction.class.getMethod("setRelationWish", Faction.class, Relation.class);
-
-        getByID = FPlayers.class.getMethod("getById", UUID.class);
-
-        getAllClaims = Board.class.getMethod("getAllClaims", Integer.class);
-
-        getTNT = Faction.class.getMethod("getTNT");
-        setTNT = Faction.class.getMethod("setTNT", int.class);
-        getMaximumTNT = Faction.class.getMethod("getMaximumTNT");
-
-        canBuild = Class.forName("com.massivecraft.factions.listeners.FactionsBlockListener").getMethod("playerCanBuildDestroyBlock", Player.class, Location.class, String.class, boolean.class);
-    }
+    public JartexIntegration() {}
 
     @SneakyThrows
     @Override
-    public void setTnT(String id, long amount) {
+    public void setTnT(String id, long amountL) {
         Faction faction = Factions.getInstance().getFactionById(id);
-        long limit = getMaxTnt(id);
+        int amount = (int) amountL;
+        int limit = (int) getMaxTnt(id);
 
         if (amount > limit) {
-            setTNT.invoke(faction, (int) limit);
+            faction.setTNT(limit);
             return;
         }
-        setTNT.invoke(faction, (int) amount);
+        faction.setTNT(amount);
     }
 
     @SneakyThrows
     @Override
-    public long addTnT(String id, long amount) {
+    public long addTnT(String id, long amountL) {
         Faction faction = Factions.getInstance().getFactionById(id);
-        int totalAmount = (int) getTNT.invoke(faction);
-
-        long limit = getMaxTnt(id);
+        int amount = (int) amountL;
+        int totalAmount = faction.getTNT();
+        int limit = (int) getMaxTnt(id);
 
         if (amount + totalAmount > limit) {
-            setTNT.invoke(faction, (int) limit);
+            faction.setTNT(limit);
             return limit - totalAmount;
         }
-        setTNT.invoke(faction, (int) (totalAmount + amount));
+        faction.setTNT(totalAmount + amount);
         return amount;
     }
 
     @SneakyThrows
     @Override
     public long getTnT(String id) {
-        return (int) getTNT.invoke(Factions.getInstance().getFactionById(id));
+        return Factions.getInstance().getFactionById(id).getTNT();
     }
 
     @SneakyThrows
     @Override
     public long getMaxTnt(String id) {
-        int maxTNT = (int) getMaximumTNT.invoke(Factions.getInstance().getFactionById(id));
+        int maxTNT = Factions.getInstance().getFactionById(id).getMaximumTNT();
         return maxTNT <= 0 ? Integer.MAX_VALUE : maxTNT;
     }
 
@@ -306,11 +229,7 @@ public class JartexIntegration implements KFaction {
 
     @Override
     public boolean playerCanBuildThere(Player player, Location location) {
-        try {
-            return (boolean) canBuild.invoke(null, player, location, "build", true);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            return false;
-        }
+        return FactionsBlockListener.playerCanBuildDestroyBlock(player, location, "build", true);
     }
 
     @Override
@@ -369,10 +288,8 @@ public class JartexIntegration implements KFaction {
     @Override
     public int getStrikes(String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
-
         if (faction == null) return 0;
-
-        return (int) getActiveStrikes.invoke(faction);
+        return faction.getActiveStrikes();
     }
 
     @Override
@@ -399,13 +316,11 @@ public class JartexIntegration implements KFaction {
     @Override
     public void setFaction(Player player, String id) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-
         if (id == null) {
             fPlayer.leave(false);
             return;
         }
-
-        setFaction.invoke(fPlayer, Factions.getInstance().getFactionById(id), false);
+        fPlayer.setFaction(Factions.getInstance().getFactionById(id), false);
     }
 
     @SneakyThrows
@@ -417,105 +332,72 @@ public class JartexIntegration implements KFaction {
             fPlayer.leave(false);
             return;
         }
-
-        setFaction.invoke(fPlayer, Factions.getInstance().getFactionById(id), false);
+        fPlayer.setFaction(Factions.getInstance().getFactionById(id), false);
     }
 
     @Override
     public void setRole(Player player, TranslatedRole translatedRole) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
 
-        try {
-            switch (translatedRole.getValue()) {
-                case 1:
-                    setRole.invoke(fPlayer, recruit);
-                    break;
-                case 2:
-                    setRole.invoke(fPlayer, normal);
-                    break;
-                case 3:
-                    setRole.invoke(fPlayer, moderator);
-                    break;
-                case 4:
-                    setRole.invoke(fPlayer, coleader);
-                    break;
-                case 5:
-                    setRole.invoke(fPlayer, leader);
-                    break;
-            }
-        } catch (IllegalAccessException | InvocationTargetException ignored) {
-
-        }
+        setFPlayerRole(translatedRole, fPlayer);
     }
 
     @Override
     public void setRole(OfflinePlayer offlinePlayer, TranslatedRole translatedRole) {
         FPlayer fPlayer = FPlayers.getInstance().getByOfflinePlayer(offlinePlayer);
 
-        try {
-            switch (translatedRole.getValue()) {
-                case 1:
-                    setRole.invoke(fPlayer, recruit);
-                    break;
-                case 2:
-                    setRole.invoke(fPlayer, normal);
-                    break;
-                case 3:
-                    setRole.invoke(fPlayer, moderator);
-                    break;
-                case 4:
-                    setRole.invoke(fPlayer, coleader);
-                    break;
-                case 5:
-                    setRole.invoke(fPlayer, leader);
-                    break;
-            }
-        } catch (IllegalAccessException | InvocationTargetException ignored) {
+        setFPlayerRole(translatedRole, fPlayer);
+    }
 
+    private void setFPlayerRole(TranslatedRole translatedRole, FPlayer fPlayer) {
+        switch (translatedRole.getValue()) {
+            case 1:
+                fPlayer.setRole(Role.RECRUIT);
+                break;
+            case 2:
+                fPlayer.setRole(Role.NORMAL);
+                break;
+            case 3:
+                fPlayer.setRole(Role.MODERATOR);
+                break;
+            case 4:
+                fPlayer.setRole(Role.CO_ADMIN);
+                break;
+            case 5:
+                fPlayer.setRole(Role.ADMIN);
+                break;
         }
     }
 
     @SneakyThrows
     @Override
     public void setPermission(String id, TranslatedRelation relation, String permission, boolean b) {
-        Faction faction = Factions.getInstance().getFactionById(id);
+        MemoryFaction faction = (MemoryFaction) Factions.getInstance().getFactionById(id);
 
-        PRole rel = null;
+        PRole rel = switch (relation) {
+            case MEMBER -> PRole.NORMAL;
+            case ENEMY -> PRole.ENEMY;
+            case NEUTRAL -> PRole.NEUTRAL;
+            case ALLY -> PRole.ALLY;
+            case TRUCE -> PRole.TRUCE;
+        };
 
-        switch (relation) {
-            case MEMBER:
-                rel = PRole.NORMAL;
-                break;
-            case ENEMY:
-                rel = PRole.ENEMY;
-                break;
-            case NEUTRAL:
-                rel = PRole.NEUTRAL;
-                break;
-            case ALLY:
-                rel = PRole.ALLY;
-                break;
-            case TRUCE:
-                rel = PRole.TRUCE;
+        Map<String, List<PRole>> permMap = faction.getPermissions();
+        List<PRole> permissions = permMap.computeIfAbsent(permission, k -> new ArrayList<>());
+        if (!b) {
+            permissions.removeIf(z -> z == rel);
+        }else {
+            if (!permissions.contains(rel)) {
+                permissions.add(rel);
+            }
         }
-
-        List<PRole> allowed = (List<PRole>) ((Map) getPermissions.invoke(faction)).get(rel.name());
-
-        if (allowed == null)
-            return;
-
-        if (allowed.contains(rel))
-            return;
-
-        allowed.add(rel);
     }
 
     @SneakyThrows
     @Override
     public void setRelationWish(String id, String other, TranslatedRelation relation) {
         Faction faction = Factions.getInstance().getFactionById(id);
-
-        setRelationWish.invoke(faction, Factions.getInstance().getFactionById(other), Relation.valueOf(relation.toString()));
+        faction.setRelationWish(Factions.getInstance().getFactionById(other), Relation.valueOf(relation.toString()));
     }
 
     @Override
@@ -579,7 +461,7 @@ public class JartexIntegration implements KFaction {
     public Map<String, Set<Integer[]>> getAllClaims(String id) {
         Map<String, Set<Integer[]>> toReturn = new HashMap<>();
 
-        Set<FLocation> all = (Set<FLocation>) getAllClaims.invoke(Board.getInstance(), Integer.valueOf(id));
+        Set<FLocation> all = Board.getInstance().getAllClaims(Integer.valueOf(id));
 
         for (FLocation fLocation : all) {
             toReturn.putIfAbsent(fLocation.getWorldName(), new HashSet<>());
@@ -649,25 +531,14 @@ public class JartexIntegration implements KFaction {
 
     @Override
     public String getRolePrefix(TranslatedRole translatedRole) {
-        String toReturn = "";
-        switch (translatedRole.getValue()) {
-            case 1:
-                toReturn = Conf.prefixRecruit;
-                break;
-            case 2:
-                toReturn = Conf.prefixNormal;
-                break;
-            case 3:
-                toReturn = Conf.prefixMod;
-                break;
-            case 4:
-                toReturn = Conf.prefixCoAdmin;
-                break;
-            case 5:
-                toReturn = Conf.prefixAdmin;
-                break;
-        }
-        return toReturn;
+        return switch (translatedRole.getValue()) {
+            case 1 -> Conf.prefixRecruit;
+            case 2 -> Conf.prefixNormal;
+            case 3 -> Conf.prefixMod;
+            case 4 -> Conf.prefixCoAdmin;
+            case 5 -> Conf.prefixAdmin;
+            default -> "";
+        };
     }
 
     @SneakyThrows
@@ -680,7 +551,7 @@ public class JartexIntegration implements KFaction {
         List<Player> players = new ArrayList<>();
 
         for (FPlayer fPlayer : faction.getFPlayersWhereOnline(true)) {
-            if (!((boolean) isAtLeast.invoke(getRole.invoke(fPlayer), recruit)) || isAlt(fPlayer.getPlayer())) continue;
+            if (!(fPlayer.getRole().isAtLeast(Role.RECRUIT)) || isAlt(fPlayer.getPlayer())) continue;
             players.add(Bukkit.getPlayer(UUID.fromString(fPlayer.getAccountId())));
         }
         return players;
@@ -711,9 +582,8 @@ public class JartexIntegration implements KFaction {
         return Bukkit.getOfflinePlayer(id1);
     }
 
-    @SneakyThrows
     private boolean isAtLeastRecruitAndNotAlt(FPlayer fPlayer) {
-        return (boolean) isAtLeast.invoke(getRole.invoke(fPlayer), recruit) && !isAlt(fPlayer.getPlayer());
+        return fPlayer.getRole().isAtLeast(Role.RECRUIT) && !isAlt(fPlayer.getPlayer());
     }
 
     @Override
@@ -749,9 +619,7 @@ public class JartexIntegration implements KFaction {
     @SneakyThrows
     @Override
     public boolean hasFaction(UUID uuid) {
-        FPlayer fPlayer = (FPlayer) getByID.invoke(FPlayers.getInstance(), uuid);
-
-        return fPlayer.hasFaction();
+        return FPlayers.getInstance().getById(uuid).hasFaction();
     }
 
     @Override
@@ -769,45 +637,26 @@ public class JartexIntegration implements KFaction {
     public TranslatedRelation getRelationToFaction(Player player, String id) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
         Faction faction = Factions.getInstance().getFactionById(id);
-        try {
-            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(fPlayer, faction)).name().toUpperCase());
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            return TranslatedRelation.ENEMY;
-        }
+        return TranslatedRelation.valueOf(fPlayer.getRelationTo(faction).name().toUpperCase());
     }
 
     @Override
     public TranslatedRole getRole(Player player) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-        try {
-            return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRole.RECRUIT;
+        return TranslatedRole.valueOf(fPlayer.getRole().name().toUpperCase());
     }
 
     @Override
     public TranslatedRole getRole(OfflinePlayer player) {
         FPlayer fPlayer = FPlayers.getInstance().getByOfflinePlayer(player);
-        try {
-            return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRole.RECRUIT;
+        return TranslatedRole.valueOf(fPlayer.getRole().name().toUpperCase());
     }
 
     @SneakyThrows
     @Override
     public TranslatedRole getRole(UUID uuid) {
-        FPlayer fPlayer = (FPlayer) getByID.invoke(FPlayers.getInstance(), uuid);
-        try {
-            return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRole.RECRUIT;
+        FPlayer fPlayer = FPlayers.getInstance().getById(uuid);
+        return TranslatedRole.valueOf(fPlayer.getRole().name().toUpperCase());
     }
 
     @Override
@@ -815,32 +664,20 @@ public class JartexIntegration implements KFaction {
         Faction faction1 = Factions.getInstance().getFactionById(id1);
         Faction faction2 = Factions.getInstance().getFactionById(id2);
         if (faction1 == null || faction2 == null) return TranslatedRelation.ENEMY;
-        try {
-            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(faction1, faction2)).name().toUpperCase());
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRelation.ENEMY;
+        return TranslatedRelation.valueOf(faction1.getRelationTo(faction2).name().toUpperCase());
     }
 
     @Override
     public TranslatedRelation getRelationToPlayer(Player player, Player player2) {
         FPlayer fPlayer1 = FPlayers.getInstance().getByPlayer(player);
         FPlayer fPlayer2 = FPlayers.getInstance().getByPlayer(player2);
-        try {
-            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(fPlayer1, fPlayer2)).name().toUpperCase());
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRelation.ENEMY;
+        return TranslatedRelation.valueOf(fPlayer1.getRelationTo(fPlayer2).name().toUpperCase());
     }
 
     @SneakyThrows
     @Override
     public boolean isAlt(Player player) {
-        FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-
-        return (boolean) isAlt.invoke(fPlayer);
+        return FPlayers.getInstance().getByPlayer(player).isAlt();
     }
 
     @EventHandler

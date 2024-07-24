@@ -5,8 +5,8 @@ import com.kamikazejam.factionintegrations.object.TranslatedRelation;
 import com.kamikazejam.factionintegrations.object.TranslatedRole;
 import com.massivecraft.factions.*;
 import com.massivecraft.factions.event.*;
-import com.massivecraft.factions.iface.RelationParticipator;
 import com.massivecraft.factions.integration.Econ;
+import com.massivecraft.factions.listeners.FactionsBlockListener;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.Relation;
 import com.massivecraft.factions.perms.Role;
@@ -16,8 +16,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.Inventory;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 
 public class UUIDIntegration implements KFaction {
@@ -116,58 +114,7 @@ public class UUIDIntegration implements KFaction {
         }
     }
 
-    private Method canBuild;
-
-    private Method getRole;
-
-    private Object permissibleConstant;
-
-    private Method relationTo, setRole;
-
-    private Object leader, coleader, moderator, normal, recruit;
-
-    public UUIDIntegration() throws ClassNotFoundException, NoSuchMethodException, NoSuchFieldException {
-        Class<?> permissibleEnum = Class.forName("com.massivecraft.factions.perms.PermissibleAction");
-
-        for (Object object : permissibleEnum.getEnumConstants()) {
-            if (object.toString().equals("BUILD")) {
-                permissibleConstant = object;
-                break;
-            }
-        }
-
-        relationTo = RelationParticipator.class.getMethod("getRelationTo", RelationParticipator.class);
-
-        getRole = FPlayer.class.getMethod("getRole");
-
-        Class<?> roleClass = Class.forName("com.massivecraft.factions.perms.Role");
-
-        setRole = FPlayer.class.getMethod("setRole", roleClass);
-
-        for (Object type : roleClass.getEnumConstants()) {
-            String toString = ((Enum<?>) type).name();
-            switch (toString.toUpperCase()) {
-                case "LEADER":
-                case "ADMIN":
-                    leader = type;
-                    break;
-                case "COLEADER":
-                    coleader = type;
-                    break;
-                case "MODERATOR":
-                    moderator = type;
-                    break;
-                case "NORMAL":
-                    normal = type;
-                    break;
-                case "RECRUIT":
-                    recruit = type;
-                    break;
-            }
-        }
-
-        canBuild = Class.forName("com.massivecraft.factions.listeners.FactionsBlockListener").getMethod("playerCanBuildDestroyBlock", Player.class, Location.class, permissibleEnum, boolean.class);
-    }
+    public UUIDIntegration() {}
 
     @Override
     public void setTnT(String id, long amount) {
@@ -254,11 +201,7 @@ public class UUIDIntegration implements KFaction {
 
     @Override
     public boolean playerCanBuildThere(Player player, Location location) {
-        try {
-            return (boolean) canBuild.invoke(null, player, location, permissibleConstant, true);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            return false;
-        }
+        return FactionsBlockListener.playerCanBuildDestroyBlock(player, location, PermissibleAction.BUILD, true);
     }
 
     @Override
@@ -376,54 +319,33 @@ public class UUIDIntegration implements KFaction {
     public void setRole(Player player, TranslatedRole translatedRole) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
 
-        try {
-            switch (translatedRole.getValue()) {
-                case 1:
-                    setRole.invoke(fPlayer, recruit);
-                    break;
-                case 2:
-                    setRole.invoke(fPlayer, normal);
-                    break;
-                case 3:
-                    setRole.invoke(fPlayer, moderator);
-                    break;
-                case 4:
-                    setRole.invoke(fPlayer, coleader);
-                    break;
-                case 5:
-                    setRole.invoke(fPlayer, leader);
-                    break;
-            }
-        } catch (IllegalAccessException | InvocationTargetException ignored) {
-
-        }
+        setFPlayerRole(translatedRole, fPlayer);
     }
 
     @Override
     public void setRole(OfflinePlayer offlinePlayer, TranslatedRole translatedRole) {
         FPlayer fPlayer = FPlayers.getInstance().getByOfflinePlayer(offlinePlayer);
 
-        try {
-            switch (translatedRole.getValue()) {
-                case 1:
-                    setRole.invoke(fPlayer, recruit);
-                    break;
-                case 2:
-                    setRole.invoke(fPlayer, normal);
-                    break;
-                case 3:
-                    setRole.invoke(fPlayer, moderator);
-                    break;
-                case 4:
-                    setRole.invoke(fPlayer, coleader);
-                    break;
-                case 5:
-                    setRole.invoke(fPlayer, leader);
-                    break;
-            }
-        } catch (IllegalAccessException | InvocationTargetException exc) {
-            // Failed to set role, print some information about it
-            exc.printStackTrace();
+        setFPlayerRole(translatedRole, fPlayer);
+    }
+
+    private void setFPlayerRole(TranslatedRole translatedRole, FPlayer fPlayer) {
+        switch (translatedRole.getValue()) {
+            case 1:
+                fPlayer.setRole(Role.RECRUIT);
+                break;
+            case 2:
+                fPlayer.setRole(Role.NORMAL);
+                break;
+            case 3:
+                fPlayer.setRole(Role.MODERATOR);
+                break;
+            case 4:
+                fPlayer.setRole(Role.COLEADER);
+                break;
+            case 5:
+                fPlayer.setRole(Role.ADMIN);
+                break;
         }
     }
 
@@ -431,24 +353,13 @@ public class UUIDIntegration implements KFaction {
     public void setPermission(String id, TranslatedRelation relation, String permission, boolean b) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        Relation rel = null;
-
-        switch (relation) {
-            case MEMBER:
-                rel = Relation.MEMBER;
-                break;
-            case ENEMY:
-                rel = Relation.ENEMY;
-                break;
-            case NEUTRAL:
-                rel = Relation.NEUTRAL;
-                break;
-            case ALLY:
-                rel = Relation.ALLY;
-                break;
-            case TRUCE:
-                rel = Relation.TRUCE;
-        }
+        Relation rel = switch (relation) {
+            case MEMBER -> Relation.MEMBER;
+            case ENEMY -> Relation.ENEMY;
+            case NEUTRAL -> Relation.NEUTRAL;
+            case ALLY -> Relation.ALLY;
+            case TRUCE -> Relation.TRUCE;
+        };
 
         faction.setPermission(b, rel, PermissibleAction.valueOf(permission), true);
     }
@@ -581,25 +492,14 @@ public class UUIDIntegration implements KFaction {
 
     @Override
     public String getRolePrefix(TranslatedRole translatedRole) {
-        String toReturn = "";
-        switch (translatedRole.getValue()) {
-            case 1:
-                toReturn = FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getRecruit();
-                break;
-            case 2:
-                toReturn = FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getNormal();
-                break;
-            case 3:
-                toReturn = FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getMod();
-                break;
-            case 4:
-                toReturn = FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getColeader();
-                break;
-            case 5:
-                toReturn = FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getAdmin();
-                break;
-        }
-        return toReturn;
+        return switch (translatedRole.getValue()) {
+            case 1 -> FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getRecruit();
+            case 2 -> FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getNormal();
+            case 3 -> FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getMod();
+            case 4 -> FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getColeader();
+            case 5 -> FactionsPlugin.getInstance().getConfigManager().getMainConfig().factions().prefixes().getAdmin();
+            default -> "";
+        };
     }
 
     @Override
@@ -695,44 +595,25 @@ public class UUIDIntegration implements KFaction {
     public TranslatedRelation getRelationToFaction(Player player, String id) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
         Faction faction = Factions.getInstance().getFactionById(id);
-        try {
-            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(fPlayer, faction)).name().toUpperCase());
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            return TranslatedRelation.ENEMY;
-        }
+        return TranslatedRelation.valueOf(fPlayer.getRelationTo(faction).name().toUpperCase());
     }
 
     @Override
     public TranslatedRole getRole(Player player) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-        try {
-            return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRole.RECRUIT;
+        return TranslatedRole.valueOf(fPlayer.getRole().name().toUpperCase());
     }
 
     @Override
     public TranslatedRole getRole(OfflinePlayer player) {
         FPlayer fPlayer = FPlayers.getInstance().getByOfflinePlayer(player);
-        try {
-            return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRole.RECRUIT;
+        return TranslatedRole.valueOf(fPlayer.getRole().name().toUpperCase());
     }
 
     @Override
     public TranslatedRole getRole(UUID uuid) {
         FPlayer fPlayer = FPlayers.getInstance().getById(uuid.toString());
-        try {
-            return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRole.RECRUIT;
+        return TranslatedRole.valueOf(fPlayer.getRole().name().toUpperCase());
     }
 
     @Override
@@ -740,24 +621,14 @@ public class UUIDIntegration implements KFaction {
         Faction faction1 = Factions.getInstance().getFactionById(id1);
         Faction faction2 = Factions.getInstance().getFactionById(id2);
         if (faction1 == null || faction2 == null) return TranslatedRelation.ENEMY;
-        try {
-            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(faction1, faction2)).name().toUpperCase());
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRelation.ENEMY;
+        return TranslatedRelation.valueOf(faction1.getRelationTo(faction2).name().toUpperCase());
     }
 
     @Override
     public TranslatedRelation getRelationToPlayer(Player player, Player player2) {
         FPlayer fPlayer1 = FPlayers.getInstance().getByPlayer(player);
         FPlayer fPlayer2 = FPlayers.getInstance().getByPlayer(player2);
-        try {
-            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(fPlayer1, fPlayer2)).name().toUpperCase());
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRelation.ENEMY;
+        return TranslatedRelation.valueOf(fPlayer1.getRelationTo(fPlayer2).name().toUpperCase());
     }
 
     @Override

@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+// Don't have a StellarFactions jar file, can't replace the reflection :(
+@SuppressWarnings({"all"})
 public class StellarIntegration extends UUIDIntegration implements KFaction {
 
     @EventHandler

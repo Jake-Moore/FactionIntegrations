@@ -6,15 +6,20 @@ import com.kamikazejam.factionintegrations.object.TranslatedRole;
 import com.kamikazejam.factionintegrations.shield.ShieldIntegration;
 import com.kamikazejam.factionintegrations.utils.PluginSource;
 import com.massivecraft.factions.*;
+import com.massivecraft.factions.cmd.CmdJoin;
 import com.massivecraft.factions.event.*;
-import com.massivecraft.factions.iface.RelationParticipator;
+import com.massivecraft.factions.listeners.FactionsBlockListener;
+import com.massivecraft.factions.struct.Relation;
+import com.massivecraft.factions.struct.Role;
+import com.massivecraft.factions.util.FastChunk;
+import com.massivecraft.factions.zcore.fperms.Access;
+import com.massivecraft.factions.zcore.fperms.PermissableAction;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -61,12 +66,7 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
 
     @Override
     public boolean isRelationColorsEnabled() {
-        try {
-            return (boolean) chatTagRelationColored.get(null);
-        } catch (IllegalAccessException ignored) {
-
-        }
-        return true;
+        return Conf.chatTagRelationColored;
     }
 
     @EventHandler
@@ -117,290 +117,83 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
         }
     }
 
-    private Method getLimit;
-    private Method add;
-    private Method take;
-    private Method getBalance;
-
-    private Method getRole;
-
-    private Method getOnlinePlayers;
-
-    private Method relationTo;
-
-    private Method canBuild;
-
-    private Method chestInventory;
-
-    private Method getStrikes, setRole;
-
-    private Method setFaction;
-
-    private Object leader, coleader, moderator, normal, recruit;
-
-    private Method maxMembers;
-
-    private Field leaderP, coleaderP, moderatorP, normalP, recruitP;
-
-    private Field econEnabled;
-
-    private Object cmdJoin;
-
-    private Field chatTagRelationColored;
-
-    private Method getMoneyBalance, setMoneyBalance;
-
-    private Method isProtectedFaction;
-    private Method getBaseRegion;
-
-    private Method getXFastChunk, getZFastChunk;
-
-    private Method isAlt;
-
-    public SaberFactionsXIntegration() throws ClassNotFoundException, NoSuchMethodException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
-        Class<?> factionClass = Class.forName("com.massivecraft.factions.Faction");
-
-        Class<?> fastChunkClass = Class.forName("com.massivecraft.factions.util.FastChunk");
-
-        getXFastChunk = fastChunkClass.getMethod("getX");
-        getZFastChunk = fastChunkClass.getMethod("getZ");
-
-        getLimit = factionClass.getMethod("getTntBankLimit");
-
-        chestInventory = factionClass.getMethod("getChestInventory");
-
-        isProtectedFaction = factionClass.getMethod("isProtected");
-
-        getBaseRegion = factionClass.getMethod("getBaseRegion");
-
-        add = factionClass.getMethod("addTnt", int.class);
-
-        take = factionClass.getMethod("takeTnt", int.class);
-
-        try {
-            isAlt = FPlayer.class.getMethod("isAlt");
-        } catch (Exception ignored) {
-
-        }
-
-        getBalance = factionClass.getMethod("getTnt");
-
-        getMoneyBalance = factionClass.getMethod("getFactionBalance");
-
-        setMoneyBalance = factionClass.getMethod("setFactionBalance", double.class);
-
-        getStrikes = factionClass.getMethod("getStrikes");
-
-        getOnlinePlayers = Faction.class.getMethod("getOnlinePlayers");
-
-        relationTo = RelationParticipator.class.getMethod("getRelationTo", RelationParticipator.class);
-
-        getRole = FPlayer.class.getMethod("getRole");
-
-        Class<?> roleClass = Class.forName("com.massivecraft.factions.struct.Role");
-
-        setRole = FPlayer.class.getMethod("setRole", roleClass);
-
-        setFaction = FPlayer.class.getMethod("setFaction", Faction.class, boolean.class);
-
-        maxMembers = Class.forName("com.massivecraft.factions.cmd.CmdJoin").getDeclaredMethod("getFactionMemberLimit", Class.forName("com.massivecraft.factions.Faction"));
-
-        Class<?> aClass = Class.forName("com.massivecraft.factions.FactionsPlugin");
-
-        Object main = aClass.getField("instance").get(null);
-
-        Object cmdBase = aClass.getField("cmdBase").get(main);
-
-        Field cmdJoinField = cmdBase.getClass().getField("cmdJoin");
-
-        cmdJoin = cmdJoinField.get(cmdBase);
-
+    private final Method maxMembers;
+    public SaberFactionsXIntegration() throws NoSuchMethodException {
+        maxMembers = CmdJoin.class.getDeclaredMethod("getFactionMemberLimit", Faction.class);
         maxMembers.setAccessible(true);
-
-        for (Object type : roleClass.getEnumConstants()) {
-            String toString = ((Enum<?>) type).name();
-            switch (toString.toUpperCase()) {
-                case "LEADER":
-                case "ADMIN":
-                    leader = type;
-                    break;
-                case "COLEADER":
-                    coleader = type;
-                    break;
-                case "MODERATOR":
-                    moderator = type;
-                    break;
-                case "NORMAL":
-                    normal = type;
-                    break;
-                case "RECRUIT":
-                    recruit = type;
-            }
-        }
-
-        Class<?> confClass = Class.forName("com.massivecraft.factions.Conf");
-
-        leaderP = confClass.getField("prefixLeader");
-        coleaderP = confClass.getField("prefixCoLeader");
-        moderatorP = confClass.getField("prefixMod");
-        normalP = confClass.getField("prefixNormal");
-        recruitP = confClass.getField("prefixRecruit");
-
-        chatTagRelationColored = confClass.getField("chatTagRelationColored");
-
-        econEnabled = confClass.getField("econEnabled");
-
-        canBuild = Class.forName("com.massivecraft.factions.listeners.FactionsBlockListener")
-                .getMethod("playerCanBuildDestroyBlock", Player.class, Location.class, String.class, boolean.class);
-
-        Class<?> permissableClass = Class.forName("com.massivecraft.factions.zcore.fperms.Permissable");
-        Class<?> accessClass = Class.forName("com.massivecraft.factions.zcore.fperms.Access");
-
-        Class<?> relationClass = Class.forName("com.massivecraft.factions.struct.Relation");
-
-        valueOfRelation = relationClass.getMethod("valueOf", String.class);
-
-        allowObject = accessClass.getMethod("valueOf", String.class).invoke(null, "ALLOW");
-
-        Class<?> permissableActionClass = Class.forName("com.massivecraft.factions.zcore.fperms.PermissableAction");
-
-        valueOf = permissableActionClass.getMethod("valueOf", String.class);
-
-        setPermission = Faction.class.getMethod("setPermission", permissableClass, permissableActionClass, accessClass);
-        setRelationWish = Faction.class.getMethod("setRelationWish", Faction.class, relationClass);
     }
-
-    private Object allowObject;
-
-    private Method valueOf;
-
-    private Method valueOfRelation;
-
-    private Method setPermission;
-
-    private Method setRelationWish;
 
     @Override
     public void setTnT(String id, long amount) {
-        try {
-            Faction faction = Factions.getInstance().getFactionById(id);
-            int limit = (int) getLimit.invoke(faction);
+        Faction faction = Factions.getInstance().getFactionById(id);
+        int limit = faction.getTntBankLimit();
 
-            take.invoke(faction, getBalance.invoke(faction));
-            if (amount > limit) {
-                add.invoke(faction, limit);
-                return;
-            }
-            add.invoke(faction, (int) amount);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            Bukkit.getLogger().severe("Error setting tnt bank balance!");
+        faction.takeTnt(faction.getTnt());
+        if (amount > limit) {
+            faction.addTnt(limit);
+            return;
         }
+        faction.addTnt((int) amount);
     }
 
     @Override
     public long addTnT(String id, long amount) {
-        try {
-            Faction faction = Factions.getInstance().getFactionById(id);
-            int totalAmount = (int) getBalance.invoke(faction);
+        Faction faction = Factions.getInstance().getFactionById(id);
+        int totalAmount = faction.getTnt();
+        int limit = faction.getTntBankLimit();
 
-            int limit = (int) getLimit.invoke(faction);
-
-            if (amount + totalAmount > limit) {
-                add.invoke(faction, limit - totalAmount);
-                return limit - totalAmount;
-            }
-            add.invoke(faction, (int) amount);
-            return amount;
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            Bukkit.getLogger().severe("Error setting tnt bank balance!");
+        if (amount + totalAmount > limit) {
+            faction.addTnt(limit - totalAmount);
+            return limit - totalAmount;
         }
-        return 0;
+        faction.addTnt((int) amount);
+        return amount;
     }
 
     @Override
     public long getTnT(String id) {
-        try {
-            Faction faction = Factions.getInstance().getFactionById(id);
-            return (int) getBalance.invoke(faction);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            Bukkit.getLogger().severe("Error getting tnt bank balance!");
-        }
-        return 0;
+        return Factions.getInstance().getFactionById(id).getTnt();
     }
 
     @Override
     public long getMaxTnt(String id) {
-        try {
-            Faction faction = Factions.getInstance().getFactionById(id);
-            return (int) getLimit.invoke(faction);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            Bukkit.getLogger().severe("Error getting tnt bank limit!");
-        }
-        return Integer.MAX_VALUE;
+        return Factions.getInstance().getFactionById(id).getTntBankLimit();
     }
 
     @Override
     public int getStrikes(String id) {
-        try {
-            Faction faction = Factions.getInstance().getFactionById(id);
+        Faction faction = Factions.getInstance().getFactionById(id);
+        if (faction == null) return 0;
 
-            if (faction == null) return 0;
-
-            return (int) getStrikes.invoke(faction);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            Bukkit.getLogger().severe("Error getting faction strikes!");
-        }
-        return 0;
+        return faction.getStrikes();
     }
 
     @Override
     public double getBalance(String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
-
-        try {
-            return (double) getMoneyBalance.invoke(faction);
-        } catch (Exception ignored) {
-
-        }
-        return 0;
+        return faction.getFactionBalance();
     }
 
     @Override
     public void addBalance(String id, double add) {
         Faction faction = Factions.getInstance().getFactionById(id);
-
-        try {
-            setMoneyBalance.invoke(faction, (double) getMoneyBalance.invoke(faction) + add);
-        } catch (Exception ignored) {
-
-        }
+        faction.setFactionBalance(faction.getFactionBalance() + add);
     }
 
     @Override
     public void subtractBalance(String id, double remove) {
         Faction faction = Factions.getInstance().getFactionById(id);
-
-        try {
-            setMoneyBalance.invoke(faction, (double) getMoneyBalance.invoke(faction) - remove);
-        } catch (Exception ignored) {
-
-        }
+        faction.setFactionBalance(faction.getFactionBalance() - remove);
     }
 
     @Override
     public boolean econEnabled() {
-        try {
-            return (boolean) econEnabled.get(null);
-        } catch (IllegalAccessException ignored) {
-
-        }
-        return false;
+        return Conf.econEnabled;
     }
 
     @Override
     public boolean canPlayerBuildThere(Player player, Chunk chunk) {
         if (isBypassing(player)) return true;
-
         Faction faction = Board.getInstance().getFactionAt(new FLocation(player.getWorld().getName(), chunk.getX(), chunk.getZ()));
 
         if (faction.isWilderness()) return true;
@@ -421,11 +214,7 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
 
     @Override
     public boolean playerCanBuildThere(Player player, Location location) {
-        try {
-            return (boolean) canBuild.invoke(null, player, location, "build", false);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            return false;
-        }
+        return FactionsBlockListener.playerCanBuildDestroyBlock(player, location, "build", false);
     }
 
     @Override
@@ -482,11 +271,11 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
 
     @Override
     public int getMaxPlayers(String id) {
+        CmdJoin cmdJoin = FactionsPlugin.instance.cmdBase.cmdJoin;
+        Faction faction = Factions.getInstance().getFactionById(id);
         try {
-            return (int) maxMembers.invoke(cmdJoin, Factions.getInstance().getFactionById(id));
-        } catch (IllegalAccessException | InvocationTargetException ignored) {
-
-        }
+            return (int) maxMembers.invoke(cmdJoin, faction);
+        } catch (IllegalAccessException | InvocationTargetException ignored) {}
         return 0;
     }
 
@@ -498,13 +287,7 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
     @Override
     public boolean isInFactionChest(Player player, String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
-
-        try {
-            return ((Inventory) chestInventory.invoke(faction)).getViewers().contains(player);
-        } catch (IllegalAccessException | InvocationTargetException ignored) {
-
-        }
-        return false;
+        return faction.getChestInventory().getViewers().contains(player);
     }
 
     @Override
@@ -520,12 +303,7 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
             fPlayer.leave(false);
             return;
         }
-
-        try {
-            setFaction.invoke(fPlayer, Factions.getInstance().getFactionById(id), false);
-        } catch (Exception exc) {
-            exc.printStackTrace();
-        }
+        fPlayer.setFaction(Factions.getInstance().getFactionById(id), false);
     }
 
     @Override
@@ -536,65 +314,38 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
             fPlayer.leave(false);
             return;
         }
-
-        try {
-            setFaction.invoke(fPlayer, Factions.getInstance().getFactionById(id), false);
-        } catch (Exception exc) {
-            exc.printStackTrace();
-        }
+        fPlayer.setFaction(Factions.getInstance().getFactionById(id), false);
     }
 
     @Override
     public void setRole(Player player, TranslatedRole translatedRole) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-
-        try {
-            switch (translatedRole.getValue()) {
-                case 1:
-                    setRole.invoke(fPlayer, recruit);
-                    break;
-                case 2:
-                    setRole.invoke(fPlayer, normal);
-                    break;
-                case 3:
-                    setRole.invoke(fPlayer, moderator);
-                    break;
-                case 4:
-                    setRole.invoke(fPlayer, coleader);
-                    break;
-                case 5:
-                    setRole.invoke(fPlayer, leader);
-                    break;
-            }
-        } catch (IllegalAccessException | InvocationTargetException exc) {
-            exc.printStackTrace();
-        }
+        setFPlayerRole(translatedRole, fPlayer);
     }
 
     @Override
     public void setRole(OfflinePlayer offlinePlayer, TranslatedRole translatedRole) {
         FPlayer fPlayer = FPlayers.getInstance().getByOfflinePlayer(offlinePlayer);
+        setFPlayerRole(translatedRole, fPlayer);
+    }
 
-        try {
-            switch (translatedRole.getValue()) {
-                case 1:
-                    setRole.invoke(fPlayer, recruit);
-                    break;
-                case 2:
-                    setRole.invoke(fPlayer, normal);
-                    break;
-                case 3:
-                    setRole.invoke(fPlayer, moderator);
-                    break;
-                case 4:
-                    setRole.invoke(fPlayer, coleader);
-                    break;
-                case 5:
-                    setRole.invoke(fPlayer, leader);
-                    break;
-            }
-        } catch (IllegalAccessException | InvocationTargetException exc) {
-            exc.printStackTrace();
+    private void setFPlayerRole(TranslatedRole translatedRole, FPlayer fPlayer) {
+        switch (translatedRole.getValue()) {
+            case 1:
+                fPlayer.setRole(Role.RECRUIT);
+                break;
+            case 2:
+                fPlayer.setRole(Role.NORMAL);
+                break;
+            case 3:
+                fPlayer.setRole(Role.MODERATOR);
+                break;
+            case 4:
+                fPlayer.setRole(Role.COLEADER);
+                break;
+            case 5:
+                fPlayer.setRole(Role.LEADER);
+                break;
         }
     }
 
@@ -602,62 +353,29 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
     public void setPermission(String id, TranslatedRelation relation, String permission, boolean b) {
         Faction faction = Factions.getInstance().getFactionById(id);
 
-        try {
-            Object rel = null;
-
-            switch (relation) {
-                case MEMBER:
-                    rel = valueOfRelation.invoke(null, "MEMBER");
-                    break;
-                case ENEMY:
-                    rel = valueOfRelation.invoke(null, "ENEMY");
-                    break;
-                case NEUTRAL:
-                    rel = valueOfRelation.invoke(null, "NEUTRAL");
-                    break;
-                case ALLY:
-                    rel = valueOfRelation.invoke(null, "ALLY");
-                    break;
-                case TRUCE:
-                    rel = valueOfRelation.invoke(null, "TRUCE");
-            }
-
-            setPermission.invoke(faction, rel, valueOf.invoke(null, permission), allowObject);
-        } catch (Exception exc) {
-            exc.printStackTrace();
-        }
+        Relation rel = switch (relation) {
+            case MEMBER -> Relation.MEMBER;
+            case ENEMY -> Relation.ENEMY;
+            case NEUTRAL -> Relation.NEUTRAL;
+            case ALLY -> Relation.ALLY;
+            case TRUCE -> Relation.TRUCE;
+        };
+        faction.setPermission(rel, PermissableAction.valueOf(permission), (b) ? Access.ALLOW : Access.DENY);
     }
 
     @Override
     public void setRelationWish(String id, String other, TranslatedRelation relation) {
         Faction a = Factions.getInstance().getFactionById(id);
-
         Faction b = Factions.getInstance().getFactionById(other);
 
-        try {
-            Object rel = null;
-
-            switch (relation) {
-                case MEMBER:
-                    rel = valueOfRelation.invoke(null, "MEMBER");
-                    break;
-                case ENEMY:
-                    rel = valueOfRelation.invoke(null, "ENEMY");
-                    break;
-                case NEUTRAL:
-                    rel = valueOfRelation.invoke(null, "NEUTRAL");
-                    break;
-                case ALLY:
-                    rel = valueOfRelation.invoke(null, "ALLY");
-                    break;
-                case TRUCE:
-                    rel = valueOfRelation.invoke(null, "TRUCE");
-            }
-
-            setRelationWish.invoke(a, b, rel);
-        } catch (Exception exc) {
-            exc.printStackTrace();
-        }
+        Relation rel = switch (relation) {
+            case MEMBER -> Relation.MEMBER;
+            case ENEMY -> Relation.ENEMY;
+            case NEUTRAL -> Relation.NEUTRAL;
+            case ALLY -> Relation.ALLY;
+            case TRUCE -> Relation.TRUCE;
+        };
+        a.setRelationWish(b, rel);
     }
 
     @Override
@@ -724,13 +442,7 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
     @Override
     public Inventory getChestInventory(Player player, String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
-
-        try {
-            return (Inventory) chestInventory.invoke(faction);
-        } catch (IllegalAccessException | InvocationTargetException ignored) {
-
-        }
-        return null;
+        return faction.getChestInventory();
     }
 
     @Override
@@ -786,29 +498,14 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
 
     @Override
     public String getRolePrefix(TranslatedRole translatedRole) {
-        String toReturn = "";
-        try {
-            switch (translatedRole) {
-                case RECRUIT:
-                    toReturn = (String) recruitP.get(null);
-                    break;
-                case NORMAL:
-                    toReturn = (String) normalP.get(null);
-                    break;
-                case MODERATOR:
-                    toReturn = (String) moderatorP.get(null);
-                    break;
-                case COLEADER:
-                    toReturn = (String) coleaderP.get(null);
-                    break;
-                case ADMIN:
-                    toReturn = (String) leaderP.get(null);
-                    break;
-            }
-        } catch (IllegalAccessException ignored) {
-
-        }
-        return toReturn;
+        return switch (translatedRole) {
+            case RECRUIT -> Conf.prefixRecruit;
+            case NORMAL -> Conf.prefixNormal;
+            case MODERATOR -> Conf.prefixMod;
+            case COLEADER -> Conf.prefixCoLeader;
+            case ADMIN -> Conf.prefixLeader;
+            default -> "";
+        };
     }
 
     @Override
@@ -900,16 +597,12 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
 
     @Override
     public boolean isAlt(Player player) {
-        if (isAlt == null)
-            return false;
-
+        FPlayer fPlayer = Objects.requireNonNull(FPlayers.getInstance().getByPlayer(player));
         try {
-            FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-            return (boolean) isAlt.invoke(fPlayer);
-        } catch (IllegalAccessException | InvocationTargetException ignored) {
-
+            return fPlayer.isAlt();
+        }catch (Throwable ignored) {
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -922,44 +615,25 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
     public TranslatedRelation getRelationToFaction(Player player, String id) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
         Faction faction = Factions.getInstance().getFactionById(id);
-        try {
-            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(fPlayer, faction)).name().toUpperCase());
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            return TranslatedRelation.ENEMY;
-        }
+        return TranslatedRelation.valueOf(fPlayer.getRelationTo(faction).name().toUpperCase());
     }
 
     @Override
     public TranslatedRole getRole(Player player) {
         FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-        try {
-            return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRole.RECRUIT;
+        return TranslatedRole.valueOf(fPlayer.getRole().name().toUpperCase());
     }
 
     @Override
     public TranslatedRole getRole(OfflinePlayer player) {
         FPlayer fPlayer = FPlayers.getInstance().getByOfflinePlayer(player);
-        try {
-            return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRole.RECRUIT;
+        return TranslatedRole.valueOf(fPlayer.getRole().name().toUpperCase());
     }
 
     @Override
     public TranslatedRole getRole(UUID uuid) {
         FPlayer fPlayer = FPlayers.getInstance().getById(uuid.toString());
-        try {
-            return TranslatedRole.valueOf(((Enum<?>) getRole.invoke(fPlayer)).name().toUpperCase());
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRole.RECRUIT;
+        return TranslatedRole.valueOf(fPlayer.getRole().name().toUpperCase());
     }
 
     @Override
@@ -967,24 +641,14 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
         Faction faction1 = Factions.getInstance().getFactionById(id1);
         Faction faction2 = Factions.getInstance().getFactionById(id2);
         if (faction1 == null || faction2 == null) return TranslatedRelation.ENEMY;
-        try {
-            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(faction1, faction2)).name().toUpperCase());
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRelation.ENEMY;
+        return TranslatedRelation.valueOf(faction1.getRelationTo(faction2).name().toUpperCase());
     }
 
     @Override
     public TranslatedRelation getRelationToPlayer(Player player, Player player2) {
         FPlayer fPlayer1 = FPlayers.getInstance().getByPlayer(player);
         FPlayer fPlayer2 = FPlayers.getInstance().getByPlayer(player2);
-        try {
-            return TranslatedRelation.valueOf(((Enum<?>) relationTo.invoke(fPlayer1, fPlayer2)).name().toUpperCase());
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return TranslatedRelation.ENEMY;
+        return TranslatedRelation.valueOf(fPlayer1.getRelationTo(fPlayer2).name().toUpperCase());
     }
 
     @Override
@@ -1020,43 +684,31 @@ public class SaberFactionsXIntegration implements KFaction, ShieldIntegration {
     @Override
     public boolean isShieldRegionAt(String id, Location location) {
         Faction faction = Factions.getInstance().getFactionById(id);
-
-        if (faction == null)
+        if (faction == null) {
             return false;
-
-        try {
-            Set baseRegions = (Set) getBaseRegion.invoke(faction);
-
-            if (baseRegions.isEmpty())
-                return false;
-
-            return baseRegions.stream().anyMatch(ps -> {
-                try {
-                    int xLoc = (int) getXFastChunk.invoke(ps);
-                    int zLoc = (int) getZFastChunk.invoke(ps);
-
-                    return xLoc == location.getBlockX() >> 4 && zLoc == location.getBlockZ() >> 4;
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        } catch (IllegalAccessException | InvocationTargetException exc) {
-            throw new RuntimeException(exc);
         }
+
+        Set<FastChunk> baseRegions = faction.getBaseRegion();
+        if (baseRegions.isEmpty()) {
+            return false;
+        }
+
+        return baseRegions.stream().anyMatch(ps -> {
+            int xLoc = ps.getX();
+            int zLoc = ps.getZ();
+
+            return xLoc == location.getBlockX() >> 4 && zLoc == location.getBlockZ() >> 4;
+        });
     }
 
     @Override
     public boolean isShieldActive(String id) {
         Faction faction = Factions.getInstance().getFactionById(id);
-
-        if (faction == null)
+        if (faction == null) {
             return false;
-
-        try {
-            return (boolean) isProtectedFaction.invoke(faction);
-        } catch (IllegalAccessException | InvocationTargetException exc) {
-            throw new RuntimeException(exc);
         }
+
+        return faction.isProtected();
     }
 
     @EventHandler

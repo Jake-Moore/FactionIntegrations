@@ -37,7 +37,7 @@ allprojects {
         maven("https://repo.luxiouslabs.net/repository/maven-public/")
         maven {
             name = "luxiousFactionsLibs"
-            url = uri("https://nexus.luxiouslabs.net/factions-libs")
+            url = uri("https://repo.luxiouslabs.net/repository/luxious-private/")
             credentials {
                 username = System.getenv("LUXIOUS_NEXUS_USER")
                 password = System.getenv("LUXIOUS_NEXUS_PASS")

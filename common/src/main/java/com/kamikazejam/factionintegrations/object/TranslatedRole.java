@@ -1,5 +1,9 @@
 package com.kamikazejam.factionintegrations.object;
 
+import lombok.Getter;
+
+@Getter
+@SuppressWarnings("unused")
 public enum TranslatedRole {
 
     ADMIN(5),
@@ -16,30 +20,20 @@ public enum TranslatedRole {
 
     private final int value;
 
-    private TranslatedRole(int value) {
+    TranslatedRole(int value) {
         this.value = value;
     }
 
     public static TranslatedRole getByValue(int value) {
-        switch (value) {
-            case 0:
-                return ALT;
-            case 1:
-                return RECRUIT;
-            case 2:
-                return MEMBER;
-            case 3:
-                return OFFICER;
-            case 4:
-                return CO_LEADER;
-            case 5:
-                return ADMIN;
-        }
-        return null;
-    }
-
-    public int getValue() {
-        return this.value;
+        return switch (value) {
+            case 0 -> ALT;
+            case 1 -> RECRUIT;
+            case 2 -> MEMBER;
+            case 3 -> OFFICER;
+            case 4 -> CO_LEADER;
+            case 5 -> ADMIN;
+            default -> null;
+        };
     }
 
     public boolean isGreaterThan(TranslatedRole translatedRole) {
