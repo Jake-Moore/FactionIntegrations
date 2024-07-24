@@ -1,5 +1,5 @@
 @Suppress("PropertyName")
-var VERSION = "2.1.5"
+var VERSION = "2.1.6"
 
 plugins { // needed for the subprojects section to work
     id("java")
@@ -34,7 +34,7 @@ allprojects {
         mavenLocal()
         mavenCentral()
         maven("https://repo.papermc.io/repository/maven-public/")
-        maven("https://nexus.luxiouslabs.net/public")
+        maven("https://repo.luxiouslabs.net/repository/maven-public/")
         maven {
             name = "luxiousFactionsLibs"
             url = uri("https://nexus.luxiouslabs.net/factions-libs")
@@ -97,10 +97,15 @@ publishing {
 
     repositories {
         maven {
-            url = uri("https://nexus.luxiouslabs.net/public")
             credentials {
                 username = System.getenv("LUXIOUS_NEXUS_USER")
                 password = System.getenv("LUXIOUS_NEXUS_PASS")
+            }
+            // Select URL based on version (if it's a snapshot or not)
+            url = if (project.version.toString().endsWith("-SNAPSHOT")) {
+                uri("https://repo.luxiouslabs.net/repository/maven-snapshots/")
+            }else {
+                uri("https://repo.luxiouslabs.net/repository/maven-releases/")
             }
         }
     }

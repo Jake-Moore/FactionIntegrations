@@ -21,57 +21,51 @@ Forks not supported (and not planned)
 
 Before you can use FactionIntegrations, you have to import it into your project.
 
-### Import with Maven
-
-Add the following Repository to your pom.xml
-
+### Repository Information
+Add the following Repository to your build file.
+#### Maven [pom.xml]:
 ```xml
 <repository>
   <id>luxious-public</id>
   <name>Luxious Repository</name>
-  <url>https://nexus.luxiouslabs.net/public</url>
+  <url>https://repo.luxiouslabs.net/repository/maven-public/</url>
 </repository>
 ```
-
-Then add the following dependency  
-Replace `{VERSION}` with the version listed at the top of this page.
-
-```xml
-<dependency>
-  <groupId>com.kamikazejam</groupId>
-  <artifactId>factionintegrations</artifactId>
-  <version>{VERSION}</version>
-  <scope>provided</scope>
-</dependency>
-```
-
-&nbsp;
-
-### Import with Gradle
-
+#### Gradle (kotlin) [build.gradle.kts]:
 ```kotlin
 maven {
     name = "luxiousPublic"
-    url = uri("https://nexus.luxiouslabs.net/public")
+    url = uri("https://repo.luxiouslabs.net/repository/maven-public/")
+}
+```
+#### Gradle (groovy) [build.gradle]:
+```groovy
+maven {
+  name "luxiousPublic"
+  url "https://repo.luxiouslabs.net/repository/maven-public/"
 }
 ```
 
-Then add the following dependency  
-Replace `{VERSION}` with the version listed at the top of this page.
 
-```kotlin
-compileOnly 'com.kamikazejam:factionintegrations:{VERSION}'
+### Dependency Information
+Add the following dependency to your build file.  
+Replace `{VERSION}` with the version listed at the top of this page.  
+#### Maven Dependency [pom.xml]
+```xml
+<dependency>
+  <groupId>com.kamikazejam</groupId>
+  <artifactId>FactionIntegrations</artifactId>
+  <version>{VERSION}</version>
+  <scope>compile</scope>
+</dependency>
 ```
 
-## Supported Factions Forks:
+#### Gradle Dependency (groovy) [build.gradle]
+```groovy
+implementation "com.kamikazejam:FactionIntegrations:{VERSION}"
+```
 
-- AtlasFactions
-- SupremeFactions
-- StellarFactions
-- SavageFactions
-- SaberFactionsX
-- SaberFactions
-- LockedThread
-- VulcanFactions
-- FactionsUUID
-- MassiveCore Factions
+#### Gradle Dependency (kotlin) [build.gradle.kts]
+```kotlin
+implementation("com.kamikazejam:FactionIntegrations:{VERSION}")
+```
