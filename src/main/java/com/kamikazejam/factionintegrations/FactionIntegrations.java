@@ -3,7 +3,7 @@ package com.kamikazejam.factionintegrations;
 import com.kamikazejam.factionintegrations.integrations.*;
 import com.kamikazejam.factionintegrations.utils.NmsManager;
 import com.kamikazejam.factionintegrations.utils.PluginSource;
-import com.kamikazejam.factionintegrations.utils.StringUtil;
+import com.kamikazejam.kamicommon.util.StringUtil;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
