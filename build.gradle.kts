@@ -5,7 +5,7 @@ plugins { // needed for the subprojects section to work
     id("java")
     id("java-library")
     id("maven-publish")
-    id("io.github.goooler.shadow") version "8.1.7"
+    id("io.github.goooler.shadow") version "8.1.8"
 }
 
 ext {
