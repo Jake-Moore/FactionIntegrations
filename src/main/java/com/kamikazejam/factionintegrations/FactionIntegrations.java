@@ -1,9 +1,18 @@
 package com.kamikazejam.factionintegrations;
 
-import com.kamikazejam.factionintegrations.integrations.*;
+import com.kamikazejam.factionintegrations.integrations.AtlasIntegration;
+import com.kamikazejam.factionintegrations.integrations.Factions1_20Integration;
+import com.kamikazejam.factionintegrations.integrations.JartexIntegration;
+import com.kamikazejam.factionintegrations.integrations.JerryIntegration;
+import com.kamikazejam.factionintegrations.integrations.KFaction;
+import com.kamikazejam.factionintegrations.integrations.MCoreIntegration;
+import com.kamikazejam.factionintegrations.integrations.NewUUIDIntegration;
+import com.kamikazejam.factionintegrations.integrations.SaberFactionsIntegration;
+import com.kamikazejam.factionintegrations.integrations.SaberFactionsXIntegration;
+import com.kamikazejam.factionintegrations.integrations.StellarIntegration;
+import com.kamikazejam.factionintegrations.integrations.UUIDIntegration;
 import com.kamikazejam.factionintegrations.utils.NmsManager;
 import com.kamikazejam.factionintegrations.utils.PluginSource;
-import com.kamikazejam.kamicommon.util.StringUtil;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -214,9 +223,22 @@ public class FactionIntegrations {
 
     private static void send(String s) {
         if (plugin == null) {
-            Bukkit.getConsoleSender().sendMessage(StringUtil.t(s));
+            Bukkit.getConsoleSender().sendMessage(translateAlternateColorCodes(s));
         }else {
-            plugin.getLogger().info(StringUtil.t(s));
+            plugin.getLogger().info(translateAlternateColorCodes(s));
         }
+    }
+
+    private static @NotNull String translateAlternateColorCodes(@NotNull String textToTranslate) {
+        char[] b = textToTranslate.toCharArray();
+
+        for(int i = 0; i < b.length - 1; ++i) {
+            if (b[i] == '&' && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i + 1]) > -1) {
+                b[i] = 167;
+                b[i + 1] = Character.toLowerCase(b[i + 1]);
+            }
+        }
+
+        return new String(b);
     }
 }

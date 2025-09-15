@@ -2,7 +2,12 @@ package com.kamikazejam.factionintegrations.integrations;
 
 import com.kamikazejam.factionintegrations.event.KPowerLossEvent;
 import com.kamikazejam.factionintegrations.shield.ShieldIntegration;
-import com.massivecraft.factions.*;
+import com.massivecraft.factions.FLocation;
+import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.FPlayers;
+import com.massivecraft.factions.Faction;
+import com.massivecraft.factions.Factions;
+import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.event.PowerLossEvent;
 import com.massivecraft.factions.managers.UpgradesManager;
 import com.massivecraft.factions.objects.Strike;

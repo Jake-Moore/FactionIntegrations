@@ -1,22 +1,53 @@
 package com.kamikazejam.factionintegrations.integrations;
 
-import com.kamikazejam.factionintegrations.event.*;
+import com.kamikazejam.factionintegrations.event.KFactionCreateEvent;
+import com.kamikazejam.factionintegrations.event.KFactionDisbandEvent;
+import com.kamikazejam.factionintegrations.event.KLandClaimEvent;
+import com.kamikazejam.factionintegrations.event.KLandUnclaimEvent;
+import com.kamikazejam.factionintegrations.event.KPlayerEvent;
+import com.kamikazejam.factionintegrations.event.KPlayerJoinEvent;
+import com.kamikazejam.factionintegrations.event.KPlayerLeaveEvent;
+import com.kamikazejam.factionintegrations.event.KPowerLossEvent;
 import com.kamikazejam.factionintegrations.object.TranslatedRelation;
 import com.kamikazejam.factionintegrations.object.TranslatedRole;
 import com.massivecraft.factions.Rel;
-import com.massivecraft.factions.entity.*;
+import com.massivecraft.factions.entity.Board;
+import com.massivecraft.factions.entity.BoardColl;
+import com.massivecraft.factions.entity.Faction;
+import com.massivecraft.factions.entity.FactionColl;
+import com.massivecraft.factions.entity.MConf;
+import com.massivecraft.factions.entity.MPerm;
+import com.massivecraft.factions.entity.MPlayer;
+import com.massivecraft.factions.entity.MPlayerColl;
 import com.massivecraft.factions.entity.internal.Rank;
-import com.massivecraft.factions.event.*;
+import com.massivecraft.factions.event.EventFactionsChunkChangeType;
+import com.massivecraft.factions.event.EventFactionsChunksChange;
+import com.massivecraft.factions.event.EventFactionsCreate;
+import com.massivecraft.factions.event.EventFactionsDisband;
+import com.massivecraft.factions.event.EventFactionsMembershipChange;
+import com.massivecraft.factions.event.EventFactionsPowerChange;
 import com.massivecraft.massivecore.money.Money;
 import com.massivecraft.massivecore.ps.PS;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class Factions1_20Integration implements MKFaction {
@@ -93,55 +124,35 @@ public class Factions1_20Integration implements MKFaction {
     }
 
     private KPlayerEvent.Reason fromOther(EventFactionsMembershipChange.MembershipChangeReason reason) {
-        switch (reason) {
-            case DISBAND:
-                return KPlayerEvent.Reason.DISBAND;
-            case CREATE:
-                return KPlayerEvent.Reason.CREATE;
-            case JOIN:
-                return KPlayerEvent.Reason.JOIN;
-            case KICK:
-                return KPlayerEvent.Reason.KICK;
-            case LEAVE:
-                return KPlayerEvent.Reason.LEAVE;
-        }
-        return null;
+        return switch (reason) {
+            case DISBAND -> KPlayerEvent.Reason.DISBAND;
+            case CREATE -> KPlayerEvent.Reason.CREATE;
+            case JOIN -> KPlayerEvent.Reason.JOIN;
+            case KICK -> KPlayerEvent.Reason.KICK;
+            case LEAVE -> KPlayerEvent.Reason.LEAVE;
+            default -> null;
+        };
     }
 
     private Rel fromTranslatedRelation(TranslatedRelation relation) {
-        switch (relation) {
-            case MEMBER:
-                return Rel.FACTION;
-            case ALLY:
-                return Rel.ALLY;
-            case ENEMY:
-                return Rel.ENEMY;
-            case TRUCE:
-                return Rel.TRUCE;
-            case NEUTRAL:
-                return Rel.NEUTRAL;
-            default:
-                throw new IllegalArgumentException();
-        }
+        return switch (relation) {
+            case MEMBER -> Rel.FACTION;
+            case ALLY -> Rel.ALLY;
+            case ENEMY -> Rel.ENEMY;
+            case TRUCE -> Rel.TRUCE;
+            case NEUTRAL -> Rel.NEUTRAL;
+        };
     }
 
     private TranslatedRelation fromRel(Rel rel) {
-        switch (rel) {
-            case FACTION:
-                return TranslatedRelation.MEMBER;
-            case ALLY:
-                return TranslatedRelation.ALLY;
-            case ENEMY:
-                return TranslatedRelation.ENEMY;
-            case TRUCE:
-                return TranslatedRelation.TRUCE;
-            case NEUTRAL:
-                return TranslatedRelation.NEUTRAL;
-            case KINGDOM:
-                throw new IllegalArgumentException("Rel value " + rel.getName() + " not recognized.");
-            default:
-                throw new IllegalArgumentException();
-        }
+        return switch (rel) {
+            case FACTION -> TranslatedRelation.MEMBER;
+            case ALLY -> TranslatedRelation.ALLY;
+            case ENEMY -> TranslatedRelation.ENEMY;
+            case TRUCE -> TranslatedRelation.TRUCE;
+            case NEUTRAL -> TranslatedRelation.NEUTRAL;
+            case KINGDOM -> throw new IllegalArgumentException("Rel value " + rel.getName() + " not recognized.");
+        };
     }
 
     private Rank fromTranslatedRole(TranslatedRole role) {
@@ -153,18 +164,13 @@ public class Factions1_20Integration implements MKFaction {
     }
 
     private TranslatedRole fromRank(Rank rank) {
-        switch (rank.getPriority() / 100) {
-            case 5:
-                return TranslatedRole.LEADER;
-            case 4:
-                return TranslatedRole.COLEADER;
-            case 3:
-                return TranslatedRole.OFFICER;
-            case 2:
-                return TranslatedRole.MEMBER;
-            default:
-                return TranslatedRole.RECRUIT;
-        }
+        return switch (rank.getPriority() / 100) {
+            case 5 -> TranslatedRole.LEADER;
+            case 4 -> TranslatedRole.COLEADER;
+            case 3 -> TranslatedRole.OFFICER;
+            case 2 -> TranslatedRole.MEMBER;
+            default -> TranslatedRole.RECRUIT;
+        };
     }
 
     @Override

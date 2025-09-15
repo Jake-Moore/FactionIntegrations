@@ -1,24 +1,56 @@
 package com.kamikazejam.factionintegrations.integrations;
 
 import com.golfing8.kore.event.RaidingOutpostResetEvent;
-import com.kamikazejam.factionintegrations.event.*;
+import com.kamikazejam.factionintegrations.event.KFactionCreateEvent;
+import com.kamikazejam.factionintegrations.event.KFactionDisbandEvent;
+import com.kamikazejam.factionintegrations.event.KLandClaimEvent;
+import com.kamikazejam.factionintegrations.event.KLandUnclaimEvent;
+import com.kamikazejam.factionintegrations.event.KPlayerEvent;
+import com.kamikazejam.factionintegrations.event.KPlayerJoinEvent;
+import com.kamikazejam.factionintegrations.event.KPlayerLeaveEvent;
+import com.kamikazejam.factionintegrations.event.KPowerLossEvent;
 import com.kamikazejam.factionintegrations.object.TranslatedRelation;
 import com.kamikazejam.factionintegrations.object.TranslatedRole;
 import com.kamikazejam.factionintegrations.shield.ShieldIntegration;
 import com.kamikazejam.factionintegrations.utils.PluginSource;
 import com.massivecraft.factions.Rel;
 import com.massivecraft.factions.engine.EnginePermBuild;
-import com.massivecraft.factions.entity.*;
-import com.massivecraft.factions.event.*;
+import com.massivecraft.factions.entity.BoardColl;
+import com.massivecraft.factions.entity.Faction;
+import com.massivecraft.factions.entity.FactionColl;
+import com.massivecraft.factions.entity.MConf;
+import com.massivecraft.factions.entity.MPerm;
+import com.massivecraft.factions.entity.MPlayer;
+import com.massivecraft.factions.entity.MPlayerColl;
+import com.massivecraft.factions.entity.MissionUpgradeConf;
+import com.massivecraft.factions.entity.Sandbot;
+import com.massivecraft.factions.event.EventFactionsChunkChangeType;
+import com.massivecraft.factions.event.EventFactionsChunksChange;
+import com.massivecraft.factions.event.EventFactionsCreate;
+import com.massivecraft.factions.event.EventFactionsDisband;
+import com.massivecraft.factions.event.EventFactionsMembershipChange;
+import com.massivecraft.factions.event.EventFactionsPowerChange;
 import com.massivecraft.massivecore.ps.PS;
 import gg.halcyon.upgrades.UpgradesManager;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 @SuppressWarnings("deprecation")
 public class MCoreIntegration implements MKFaction, ShieldIntegration {
@@ -108,19 +140,14 @@ public class MCoreIntegration implements MKFaction, ShieldIntegration {
     }
 
     private KPlayerEvent.Reason fromOther(EventFactionsMembershipChange.MembershipChangeReason reason) {
-        switch (reason) {
-            case DISBAND:
-                return KPlayerEvent.Reason.DISBAND;
-            case CREATE:
-                return KPlayerEvent.Reason.CREATE;
-            case JOIN:
-                return KPlayerEvent.Reason.JOIN;
-            case KICK:
-                return KPlayerEvent.Reason.KICK;
-            case LEAVE:
-                return KPlayerEvent.Reason.LEAVE;
-        }
-        return null;
+        return switch (reason) {
+            case DISBAND -> KPlayerEvent.Reason.DISBAND;
+            case CREATE -> KPlayerEvent.Reason.CREATE;
+            case JOIN -> KPlayerEvent.Reason.JOIN;
+            case KICK -> KPlayerEvent.Reason.KICK;
+            case LEAVE -> KPlayerEvent.Reason.LEAVE;
+            default -> null;
+        };
     }
 
     @Override
@@ -390,13 +417,10 @@ public class MCoreIntegration implements MKFaction, ShieldIntegration {
     }
 
     private MPerm applyMapping(String in) {
-        switch (in) {
-            case "BUILD":
-            case "DESTROY":
-                return MPerm.get("build");
-            default:
-                return MPerm.get(in.toLowerCase());
-        }
+        return switch (in) {
+            case "BUILD", "DESTROY" -> MPerm.get("build");
+            default -> MPerm.get(in.toLowerCase());
+        };
     }
 
     @Override
@@ -617,26 +641,13 @@ public class MCoreIntegration implements MKFaction, ShieldIntegration {
 
     @Override
     public String getRolePrefix(TranslatedRole translatedRole) {
-        Rel rel;
-        switch (translatedRole.getValue()) {
-            case 1:
-                rel = Rel.RECRUIT;
-                break;
-            case 2:
-                rel = Rel.MEMBER;
-                break;
-            case 3:
-                rel = Rel.OFFICER;
-                break;
-            case 4:
-                rel = Rel.COLEADER;
-                break;
-            case 5:
-                rel = Rel.LEADER;
-                break;
-            default:
-                rel = Rel.RECRUIT;
-        }
+        Rel rel = switch (translatedRole.getValue()) {
+            case 2 -> Rel.MEMBER;
+            case 3 -> Rel.OFFICER;
+            case 4 -> Rel.COLEADER;
+            case 5 -> Rel.LEADER;
+            default -> Rel.RECRUIT;
+        };
         return rel.getPrefix();
     }
 
@@ -725,74 +736,46 @@ public class MCoreIntegration implements MKFaction, ShieldIntegration {
         MPlayer observer = MPlayerColl.get().get(player.getUniqueId());
 
         if (observer == null) return TranslatedRelation.NEUTRAL;
-        switch (faction.getRelationTo(observer)) {
-            case OFFICER:
-            case COLEADER:
-            case LEADER:
-            case MEMBER:
-            case RECRUIT:
-                return TranslatedRelation.MEMBER;
-            case TRUCE:
-                return TranslatedRelation.TRUCE;
-            case ALLY:
-                return TranslatedRelation.ALLY;
-            case NEUTRAL:
-                return TranslatedRelation.NEUTRAL;
-            case ENEMY:
-                return TranslatedRelation.ENEMY;
-        }
-        return TranslatedRelation.NEUTRAL;
+        return switch (faction.getRelationTo(observer)) {
+            case OFFICER, COLEADER, LEADER, MEMBER, RECRUIT -> TranslatedRelation.MEMBER;
+            case TRUCE -> TranslatedRelation.TRUCE;
+            case ALLY -> TranslatedRelation.ALLY;
+            case NEUTRAL -> TranslatedRelation.NEUTRAL;
+            case ENEMY -> TranslatedRelation.ENEMY;
+        };
     }
 
     @Override
     public TranslatedRole getRole(Player player) {
-        switch (MPlayerColl.get().get(player.getUniqueId()).getRole()) {
-            case OFFICER:
-                return TranslatedRole.MODERATOR;
-            case COLEADER:
-                return TranslatedRole.COLEADER;
-            case LEADER:
-                return TranslatedRole.LEADER;
-            case MEMBER:
-                return TranslatedRole.MEMBER;
-            case RECRUIT:
-                return TranslatedRole.RECRUIT;
-        }
-        return TranslatedRole.RECRUIT;
+        return switch (MPlayerColl.get().get(player.getUniqueId()).getRole()) {
+            case OFFICER -> TranslatedRole.MODERATOR;
+            case COLEADER -> TranslatedRole.COLEADER;
+            case LEADER -> TranslatedRole.LEADER;
+            case MEMBER -> TranslatedRole.MEMBER;
+            default -> TranslatedRole.RECRUIT;
+        };
     }
 
     @Override
     public TranslatedRole getRole(OfflinePlayer player) {
-        switch (MPlayerColl.get().get(player.getUniqueId()).getRole()) {
-            case OFFICER:
-                return TranslatedRole.MODERATOR;
-            case COLEADER:
-                return TranslatedRole.COLEADER;
-            case LEADER:
-                return TranslatedRole.LEADER;
-            case MEMBER:
-                return TranslatedRole.MEMBER;
-            case RECRUIT:
-                return TranslatedRole.RECRUIT;
-        }
-        return TranslatedRole.RECRUIT;
+        return switch (MPlayerColl.get().get(player.getUniqueId()).getRole()) {
+            case OFFICER -> TranslatedRole.MODERATOR;
+            case COLEADER -> TranslatedRole.COLEADER;
+            case LEADER -> TranslatedRole.LEADER;
+            case MEMBER -> TranslatedRole.MEMBER;
+            default -> TranslatedRole.RECRUIT;
+        };
     }
 
     @Override
     public TranslatedRole getRole(UUID uuid) {
-        switch (MPlayerColl.get().get(uuid).getRole()) {
-            case OFFICER:
-                return TranslatedRole.MODERATOR;
-            case COLEADER:
-                return TranslatedRole.COLEADER;
-            case LEADER:
-                return TranslatedRole.LEADER;
-            case MEMBER:
-                return TranslatedRole.MEMBER;
-            case RECRUIT:
-                return TranslatedRole.RECRUIT;
-        }
-        return TranslatedRole.RECRUIT;
+        return switch (MPlayerColl.get().get(uuid).getRole()) {
+            case OFFICER -> TranslatedRole.MODERATOR;
+            case COLEADER -> TranslatedRole.COLEADER;
+            case LEADER -> TranslatedRole.LEADER;
+            case MEMBER -> TranslatedRole.MEMBER;
+            default -> TranslatedRole.RECRUIT;
+        };
     }
 
     @Override
@@ -800,46 +783,26 @@ public class MCoreIntegration implements MKFaction, ShieldIntegration {
         Faction faction1 = FactionColl.get().get(id1);
         Faction faction2 = FactionColl.get().get(id2);
         if (faction1 == null || faction2 == null) return TranslatedRelation.ENEMY;
-        switch (faction1.getRelationTo(faction2)) {
-            case OFFICER:
-            case COLEADER:
-            case LEADER:
-            case MEMBER:
-            case RECRUIT:
-                return TranslatedRelation.MEMBER;
-            case TRUCE:
-                return TranslatedRelation.TRUCE;
-            case ALLY:
-                return TranslatedRelation.ALLY;
-            case NEUTRAL:
-                return TranslatedRelation.NEUTRAL;
-            case ENEMY:
-                return TranslatedRelation.ENEMY;
-        }
-        return TranslatedRelation.ENEMY;
+        return switch (faction1.getRelationTo(faction2)) {
+            case OFFICER, COLEADER, LEADER, MEMBER, RECRUIT -> TranslatedRelation.MEMBER;
+            case TRUCE -> TranslatedRelation.TRUCE;
+            case ALLY -> TranslatedRelation.ALLY;
+            case NEUTRAL -> TranslatedRelation.NEUTRAL;
+            case ENEMY -> TranslatedRelation.ENEMY;
+        };
     }
 
     @Override
     public TranslatedRelation getRelationToPlayer(Player player, Player player2) {
         MPlayer mplayer1 = MPlayerColl.get().get(player.getUniqueId());
         MPlayer mplayer2 = MPlayerColl.get().get(player2.getUniqueId());
-        switch (mplayer1.getRelationTo(mplayer2)) {
-            case OFFICER:
-            case COLEADER:
-            case LEADER:
-            case MEMBER:
-            case RECRUIT:
-                return TranslatedRelation.MEMBER;
-            case TRUCE:
-                return TranslatedRelation.TRUCE;
-            case ALLY:
-                return TranslatedRelation.ALLY;
-            case NEUTRAL:
-                return TranslatedRelation.NEUTRAL;
-            case ENEMY:
-                return TranslatedRelation.ENEMY;
-        }
-        return TranslatedRelation.ENEMY;
+        return switch (mplayer1.getRelationTo(mplayer2)) {
+            case OFFICER, COLEADER, LEADER, MEMBER, RECRUIT -> TranslatedRelation.MEMBER;
+            case TRUCE -> TranslatedRelation.TRUCE;
+            case ALLY -> TranslatedRelation.ALLY;
+            case NEUTRAL -> TranslatedRelation.NEUTRAL;
+            case ENEMY -> TranslatedRelation.ENEMY;
+        };
     }
 
     @Override

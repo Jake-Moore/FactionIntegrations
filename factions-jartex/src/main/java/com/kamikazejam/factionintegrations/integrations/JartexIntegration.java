@@ -1,12 +1,33 @@
 package com.kamikazejam.factionintegrations.integrations;
 
 import com.google.common.collect.Lists;
-import com.kamikazejam.factionintegrations.event.*;
+import com.kamikazejam.factionintegrations.event.KFactionCreateEvent;
+import com.kamikazejam.factionintegrations.event.KFactionDisbandEvent;
+import com.kamikazejam.factionintegrations.event.KLandClaimEvent;
+import com.kamikazejam.factionintegrations.event.KLandUnclaimEvent;
+import com.kamikazejam.factionintegrations.event.KLandUnclaimallEvent;
+import com.kamikazejam.factionintegrations.event.KPlayerEvent;
+import com.kamikazejam.factionintegrations.event.KPlayerJoinEvent;
+import com.kamikazejam.factionintegrations.event.KPlayerLeaveEvent;
+import com.kamikazejam.factionintegrations.event.KPowerLossEvent;
 import com.kamikazejam.factionintegrations.object.TranslatedRelation;
 import com.kamikazejam.factionintegrations.object.TranslatedRole;
 import com.kamikazejam.factionintegrations.utils.PluginSource;
-import com.massivecraft.factions.*;
-import com.massivecraft.factions.event.*;
+import com.massivecraft.factions.Board;
+import com.massivecraft.factions.Conf;
+import com.massivecraft.factions.FLocation;
+import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.FPlayers;
+import com.massivecraft.factions.Faction;
+import com.massivecraft.factions.Factions;
+import com.massivecraft.factions.event.FPlayerJoinEvent;
+import com.massivecraft.factions.event.FPlayerLeaveEvent;
+import com.massivecraft.factions.event.FactionCreateEvent;
+import com.massivecraft.factions.event.FactionDisbandEvent;
+import com.massivecraft.factions.event.LandClaimEvent;
+import com.massivecraft.factions.event.LandUnclaimAllEvent;
+import com.massivecraft.factions.event.LandUnclaimEvent;
+import com.massivecraft.factions.event.PowerLossEvent;
 import com.massivecraft.factions.jartex.FactionsAPI;
 import com.massivecraft.factions.jartex.faction.permission.PRole;
 import com.massivecraft.factions.jartex.faction.permission.PTNormal;
@@ -16,13 +37,24 @@ import com.massivecraft.factions.struct.Role;
 import com.massivecraft.factions.zcore.persist.MemoryBoard;
 import com.massivecraft.factions.zcore.persist.MemoryFaction;
 import lombok.SneakyThrows;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class JartexIntegration implements KFaction {

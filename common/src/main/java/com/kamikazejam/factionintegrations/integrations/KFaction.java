@@ -10,10 +10,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+@SuppressWarnings({"BooleanMethodIsAlwaysInverted", "unused"})
 public interface KFaction extends Listener {
 
     default void setTnT(String id, long amount) {
@@ -35,7 +38,6 @@ public interface KFaction extends Listener {
         return 0;
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     default boolean isUUID(String in) {
         try {
             UUID.fromString(in);
@@ -173,10 +175,8 @@ public interface KFaction extends Listener {
 
     default List<UUID> getAllMembers(String id) {
         List<UUID> all = new ArrayList<>();
-        all.addAll(getOnlineMembers(id).stream().map(Player::getUniqueId)
-                .collect(Collectors.toList()));
-        all.addAll(getOfflineMembers(id).stream().map(OfflinePlayer::getUniqueId)
-                .collect(Collectors.toList()));
+        all.addAll(getOnlineMembers(id).stream().map(Player::getUniqueId).toList());
+        all.addAll(getOfflineMembers(id).stream().map(OfflinePlayer::getUniqueId).toList());
         return all;
     }
 

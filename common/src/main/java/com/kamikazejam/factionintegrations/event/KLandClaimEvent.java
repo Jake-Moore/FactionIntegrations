@@ -1,9 +1,9 @@
 package com.kamikazejam.factionintegrations.event;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
+@SuppressWarnings({"unused", "LombokGetterMayBeUsed"})
 public class KLandClaimEvent extends KLandEvent {
 
     public KLandClaimEvent(String faction, String string, Integer[] location, Player player) {
