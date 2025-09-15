@@ -4,8 +4,22 @@
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
 version: 2
+registries:
+  luxious-repo:
+    type: maven-repository
+    url: https://repo.luxiouslabs.net/repository/luxious-private
+    username: ${{ secrets.LUXIOUS_NEXUS_USER }}
+    password: ${{ secrets.LUXIOUS_NEXUS_PASS }}
 updates:
-  - package-ecosystem: "gradle" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "gradle"
+    directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+    groups:
+      default:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
