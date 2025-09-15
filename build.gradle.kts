@@ -10,7 +10,7 @@ plugins { // needed for the subprojects section to work
 
 ext {
     set("lombokDep", "org.projectlombok:lombok:1.18.32")
-    set("jetbrainsDep", "org.jetbrains:annotations:24.1.0")
+    set("jetbrainsDep", "org.jetbrains:annotations:26.0.2-1")
 
     // reduced is just a re-zipped version of the original, without some conflicting libraries
     //  gson, org.json, com.yaml.snakeyaml
